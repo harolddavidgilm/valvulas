@@ -128,20 +128,31 @@ export default function ProgramacionPage() {
     return styles.projected;
   };
 
-  // Traer las OTs de un día en específico
+  // Traer las OTs filtradas por fecha y técnicos seleccionados
   const getTasksForSpecificDay = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return ots.filter(ot => ot.fecha_programada === dateStr);
+    let filtered = ots.filter(ot => ot.fecha_programada === dateStr);
+    if (selectedTechs.length > 0) {
+      filtered = filtered.filter(ot => selectedTechs.includes(ot.tecnico_asignado));
+    }
+    return filtered;
   };
 
   const getTasksForDay = (day: number) => {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return ots.filter(ot => ot.fecha_programada === dateStr);
+    let filtered = ots.filter(ot => ot.fecha_programada === dateStr);
+    if (selectedTechs.length > 0) {
+      filtered = filtered.filter(ot => selectedTechs.includes(ot.tecnico_asignado));
+    }
+    return filtered;
   };
 
-  // Lógica de KPIs (Basado en el mes visualizado)
+  // Lógica de KPIs (Basado en el mes visualizado y filtros)
   const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-  const otsInMonth = ots.filter(ot => ot.fecha_programada && ot.fecha_programada.startsWith(monthPrefix));
+  let otsInMonth = ots.filter(ot => ot.fecha_programada && ot.fecha_programada.startsWith(monthPrefix));
+  if (selectedTechs.length > 0) {
+    otsInMonth = otsInMonth.filter(ot => selectedTechs.includes(ot.tecnico_asignado));
+  }
   
   const totalMonth = otsInMonth.length;
   const completedMonth = otsInMonth.filter(ot => {
