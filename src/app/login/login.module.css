@@ -97,12 +97,29 @@
 
 .inputWrapper input {
   flex: 1;
-  background: none;
-  border: none;
+  background: transparent !important;
+  border: none !important;
   padding: 0.8rem;
   font-size: 0.95rem;
   color: #1e293b;
-  outline: none;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.inputWrapper input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Evitar que el autocompletado de Chrome/Edge añada fondos o bordes raros */
+.inputWrapper input:-webkit-autofill,
+.inputWrapper input:-webkit-autofill:hover, 
+.inputWrapper input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #1e293b;
+  -webkit-box-shadow: 0 0 0px 1000px #f8fafc inset !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .errorAlert {
