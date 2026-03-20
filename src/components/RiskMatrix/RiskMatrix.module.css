@@ -1,0 +1,112 @@
+.matrixWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 2.5rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 35px 1fr;
+  grid-template-rows: 1fr 35px;
+  gap: 10px;
+  max-width: 450px;
+  width: 100%;
+}
+
+.matrixGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 6px;
+  aspect-ratio: 1;
+}
+
+.yAxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding-right: 12px;
+  font-weight: 700;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.xAxis {
+  grid-column: 2;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-top: 12px;
+  font-weight: 700;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.cell {
+  position: relative;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.cell:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 5;
+}
+
+/* Heatmap Colors with Gradients */
+.bajo { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+.medio { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+.alto { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+.critico { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+
+.bubble {
+  width: 30px;
+  height: 30px;
+  background: white;
+  color: #1e293b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.yLabel, .xLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.yLabel {
+  align-self: flex-start;
+  margin-left: -50px;
+  transform: rotate(-90deg) translateX(-100%);
+  transform-origin: left top;
+}
+
+.xLabel {
+  text-align: center;
+  margin-top: 20px;
+}

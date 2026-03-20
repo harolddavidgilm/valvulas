@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --app-bg: #c9ccd0; /* Outer background color matching image */
+  --sidebar-bg: #5c6874; /* Sidebar dark slate blue/grey */
+  --main-bg: #f7f9fa; /* The light clean background inside the app layout */
+  
+  --foreground: #1c2331; /* Dark text for clean reading */
+  --text-muted: #8493a5; /* Light grey text */
+  
+  /* Accent colors from the image (Mint green and Indigo) */
+  --accent: #87bfa0;
+  --accent-dark: #74a78a;
+  --accent-purple: #4e4bb2;
+  
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --success: #10b981;
+  
+  --card-bg: #ffffff;
+  --border: #e8ecf1;
+  
+  --font-industrial: 'Outfit', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--main-bg);
+  color: var(--foreground);
+  font-family: var(--font-industrial);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Overall layout wrapping the app to match the design */
+.layout {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background: var(--main-bg);
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem 3rem;
+  overflow-y: auto;
+  background: var(--main-bg);
+}
+
+/* Make it responsive */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+  .main-content {
+    padding: 1.5rem;
+  }
+}
+
+/* Typography styles */
+h1, h2, h3 {
+  color: var(--foreground);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+/* Removing old dark-theme glass effect for solid white modern cards */
+.glass {
+  background: var(--card-bg) !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 24px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 2px 5px rgba(0,0,0,0.02) !important;
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.btn-primary:hover {
+  background: var(--accent-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(135, 191, 160, 0.4);
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: var(--foreground);
+  border: 1px solid #d1d5db;
+  padding: 10px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+}
+
+.btn-danger {
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.btn-danger:hover {
+  background: #fecaca;
+}
+
+/* Inputs globally */
+input, select, textarea {
+  display: block;
+  width: 100%;
+  background: #fdfdfd;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: var(--foreground);
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(135,191,160, 0.15);
+}
+
+/* Label styling global */
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}

@@ -1,0 +1,58 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.5); /* Sombra oscura pero no tan fuerte */
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 20px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+}
+
+.modal h2 {
+  margin-bottom: 0.5rem;
+  color: #0f172a; /* Texto negro fuerte */
+  font-size: 1.5rem;
+}
+
+.modal > p {
+  color: #475569; /* Gris oscuro para el párrafo principal */
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.stepBox {
+  background: #f8fafc; /* Fondo clarito parecido al de Tailwind */
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.stepBox h3 {
+  font-size: 1.05rem;
+  color: var(--accent-dark);
+  margin-bottom: 0.5rem;
+  text-transform: capitalize;
+  letter-spacing: normal;
+  font-weight: 700;
+}
+
+.stepBox p {
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: #475569;
+  line-height: 1.4;
+}

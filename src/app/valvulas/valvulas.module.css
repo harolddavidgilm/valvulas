@@ -1,0 +1,82 @@
+.container {
+  padding: 1rem 0;
+  max-width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Quitando glassmorphism oscuro y aplicando diseño limpio */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  background: #f1f5f9; /* fondo de encabezado sólido y limpio */
+  padding: 1rem 1.2rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b; /* gris pizarra */
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.table td {
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid #e2e8f0; /* borde separador sutil */
+  color: #334155;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.table tbody tr:hover td {
+  background: #f8fafc; /* highlight en hover para mejor lectura */
+}
+
+/* TAG links en color oscuro para contraste máximo */
+.tag {
+  font-weight: 700;
+  color: #0f172a !important; /* Texto negro en etiquetas */
+}
+.tag a {
+  color: #0f172a;
+  text-decoration: none;
+}
+.tag a:hover {
+  text-decoration: underline;
+  color: var(--accent-dark);
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+/* Colores de badges con alto contraste (fondo pastel e intenso) */
+.operativa { background: #dcfce7; color: #166534; }
+.fuera_de_servicio { background: #fee2e2; color: #991b1b; }
+.mantenimiento { background: #fef3c7; color: #92400e; }
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tableContainer {
+    overflow-x: auto;
+  }
+}
