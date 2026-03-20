@@ -121,7 +121,7 @@ export default function CsvUploadModal() {
       if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    reader.readAsText(file);
+    reader.readAsText(file, 'ISO-8859-1');
   };
 
   return (

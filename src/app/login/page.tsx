@@ -37,7 +37,7 @@ export default function LoginPage() {
       <div className={styles.card}>
         <header className={styles.header}>
           <div className={styles.logoCircle}>
-            <LogIn size={40} />
+            <img src="/logo.png" alt="Logo" className={styles.logoImg} />
           </div>
           <h1>VALVEINTEGRITY</h1>
           <p>Gestión de Mantenimiento de Activos</p>
@@ -85,7 +85,8 @@ export default function LoginPage() {
         </form>
 
         <footer className={styles.footer}>
-          Acceso restringido a personal autorizado.
+          <div className={styles.poweringProgress}>POWERING PROGRESS</div>
+          <div className={styles.copyright}>© 2026 Nexatech - Todos los derechos reservados</div>
         </footer>
       </div>
     </div>

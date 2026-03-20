@@ -48,12 +48,71 @@
   padding: 0 0.5rem;
 }
 
+.navContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
 .nav {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
   overflow-y: auto;
   flex: 1;
+  /* Ocultar barra de desplazamiento en Firefox */
+  scrollbar-width: none;
+  /* Ocultar barra de desplazamiento en IE/Edge */
+  -ms-overflow-style: none;
+  padding: 0.5rem 0;
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollIndicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, var(--sidebar-bg), transparent);
+  color: #cad1d9;
+  z-index: 10;
+  pointer-events: none;
+  animation: pulse 2s infinite;
+}
+
+.topIndicator {
+  top: 0;
+  background: linear-gradient(to bottom, var(--sidebar-bg), transparent);
+}
+
+.bottomIndicator {
+  bottom: 0;
+  background: linear-gradient(to top, var(--sidebar-bg), transparent);
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(3px); }
+  100% { opacity: 0.4; transform: translateY(0); }
+}
+
+@keyframes pulseUp {
+  0% { opacity: 0.4; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-3px); }
+  100% { opacity: 0.4; transform: translateY(0); }
+}
+
+.topIndicator {
+  animation: pulseUp 2s infinite;
 }
 
 .navLink {

@@ -5,12 +5,14 @@ import { supabase } from '@/lib/supabase';
 import { Package, Plus, Search, Trash2, Edit2, AlertTriangle, ShieldCheck, Clock, CircleDollarSign, ListFilter } from 'lucide-react';
 import styles from './inventario.module.css';
 import HasPermission from '@/components/Auth/HasPermission';
+import InventoryUploadModal from '@/components/InventoryUploadModal/InventoryUploadModal';
 
 export default function InventarioPage() {
   const [repuestos, setRepuestos] = useState<any[]>([]);
   const [fabricantes, setFabricantes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,6 +62,36 @@ export default function InventarioPage() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (window.confirm(`¿Está seguro de eliminar los ${selectedIds.length} repuestos seleccionados?`)) {
+      setLoading(true);
+      const { error } = await supabase.from('repuestos').delete().in('id', selectedIds);
+      if (error) {
+        alert('Error al realizar el borrado masivo: ' + error.message);
+      } else {
+        setSelectedIds([]);
+        fetchData();
+      }
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filtered.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filtered.map(r => r.id));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter(sid => sid !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
   const openEdit = (item: any) => {
     setEditingItem(item);
     setFormData({
@@ -87,9 +119,12 @@ export default function InventarioPage() {
           <p>Control logístico de piezas por fabricante de válvula</p>
         </div>
         <HasPermission roles={['admin', 'supervisor', 'tecnico']}>
-          <button className="btn-primary" onClick={() => { setEditingItem(null); setFormData({ nombre:'', tipo:'Empaque', stock:0, unidad:'pza', fabricante:'', precio_unitario:0, tiempo_entrega:'' }); setIsModalOpen(true); }}>
-            <Plus size={20} /> Nuevo Repuesto
-          </button>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <InventoryUploadModal onUploadSuccess={fetchData} />
+            <button className="btn-primary" onClick={() => { setEditingItem(null); setFormData({ nombre:'', tipo:'Empaque', stock:0, unidad:'pza', fabricante:'', precio_unitario:0, tiempo_entrega:'' }); setIsModalOpen(true); }}>
+              <Plus size={20} /> Nuevo Repuesto
+            </button>
+          </div>
         </HasPermission>
       </header>
 
@@ -124,6 +159,13 @@ export default function InventarioPage() {
         <table className={styles.table}>
           <thead>
             <tr>
+              <th style={{ width: '40px' }}>
+                <input 
+                  type="checkbox" 
+                  checked={filtered.length > 0 && selectedIds.length === filtered.length}
+                  onChange={toggleSelectAll}
+                />
+              </th>
               <th>Repuesto / Tipo</th>
               <th>Marca</th>
               <th>Stock</th>
@@ -133,10 +175,46 @@ export default function InventarioPage() {
             </tr>
           </thead>
           <tbody>
+            {!loading && selectedIds.length > 0 && (
+              <tr style={{ background: '#fef2f2' }}>
+                <td colSpan={7} style={{ padding: '0.75rem 1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#ef4444' }}>
+                      {selectedIds.length} ítems seleccionados
+                    </span>
+                    <button 
+                      onClick={handleBulkDelete}
+                      style={{ 
+                        background: '#ef4444', 
+                        color: 'white', 
+                        border: 'none', 
+                        padding: '0.4rem 1rem', 
+                        borderRadius: '8px',
+                        fontSize: '0.8rem',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <Trash2 size={14} /> Eliminar Seleccionados
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )}
             {loading ? (
-              <tr><td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>Cargando inventario...</td></tr>
+              <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}>Cargando inventario...</td></tr>
             ) : filtered.map(r => (
-              <tr key={r.id}>
+              <tr key={r.id} className={selectedIds.includes(r.id) ? styles.rowSelected : ''}>
+                <td>
+                  <input 
+                    type="checkbox" 
+                    checked={selectedIds.includes(r.id)}
+                    onChange={() => toggleSelectOne(r.id)}
+                  />
+                </td>
                 <td>
                   <strong>{r.nombre}</strong><br/>
                   <small style={{ color: '#94a3b8' }}>{r.tipo}</small>

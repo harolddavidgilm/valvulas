@@ -1,35 +1,59 @@
-import { redirect } from 'next/navigation';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import styles from './nueva.module.css';
 
-export default async function NuevaOTPage() {
+export default function NuevaOTPage() {
+  const router = useRouter();
+  const [valvulas, setValvulas] = useState<{ id: string, tag: string }[]>([]);
+  const [tecnicos, setTecnicos] = useState<any[]>([]);
+  const [saving, setSaving] = useState(false);
 
-  // Obtener válvulas para el selector
-  const { data: valvulas } = await supabase.from('valvulas').select('id, tag').order('tag');
+  useEffect(() => {
+    async function loadData() {
+      // Fetch valvulas
+      const { data: vData } = await supabase.from('valvulas').select('id, tag').order('tag');
+      if (vData) setValvulas(vData);
 
-  async function createOT(formData: FormData) {
-    'use server';
+      // Fetch tecnicos
+      const { data: tData } = await supabase.from('tecnicos').select('*').eq('activo', true).order('nombre');
+      if (tData) setTecnicos(tData);
+    }
+    loadData();
+  }, []);
 
-    const valvulasSeleccionadas = formData.getAll('valvula_id') as string[];
+  async function createOT(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSaving(true);
     
-    // Create multiple work orders (one for each valve selected)
-    const dataToInsert = valvulasSeleccionadas.map((v_id, index) => ({
-      num_ot: `OT-${Date.now()}-${index}`,
-      valvula_id: v_id,
-      tipo_mantenimiento: formData.get('tipo_trabajo') as string,
-      fecha_programada: formData.get('fecha_programada') as string,
-      tecnico_asignado: formData.get('tecnico_asignado') as string,
-      observaciones: formData.get('notas') as string,
-      estado: 'BORRADOR' // Default valid enum for DB
-    }));
+    try {
+      const formData = new FormData(e.currentTarget);
+      const valvulasSeleccionadas = formData.getAll('valvula_id') as string[];
+      
+      const dataToInsert = valvulasSeleccionadas.map((v_id, index) => ({
+        num_ot: `OT-${Date.now()}-${index}`,
+        valvula_id: v_id,
+        tipo_mantenimiento: formData.get('tipo_trabajo') as string,
+        fecha_programada: formData.get('fecha_programada') as string,
+        tecnico_asignado: formData.get('tecnico_asignado') as string,
+        observaciones: formData.get('notas') as string,
+        estado: 'BORRADOR' 
+      }));
 
-    const { error } = await supabase.from('ordenes_trabajo').insert(dataToInsert);
+      const { error } = await supabase.from('ordenes_trabajo').insert(dataToInsert);
 
-    if (!error) {
-      redirect('/programacion');
-    } else {
-      console.error('SERVER DB ERROR PRODUCING OTs:', error);
-      // Aquí se podría retornar un error state a la UI
+      if (!error) {
+        router.push('/programacion');
+      } else {
+        throw error;
+      }
+    } catch (error: any) {
+      console.error('Error creating OTs:', error);
+      alert('Error: ' + error.message);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -37,7 +61,7 @@ export default async function NuevaOTPage() {
     <div style={{ padding: '2rem' }}>
       <h2 style={{color: '#0f172a', marginBottom: '1rem'}}>Programar Nueva Orden de Trabajo</h2>
 
-      <form action={createOT} className={`${styles.formContainer} glass`} style={{backgroundColor: '#fff', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'}}>
+      <form onSubmit={createOT} className={`${styles.formContainer} glass`} style={{backgroundColor: '#fff', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'}}>
         <div className={styles.inputs}>
           
           <div className={styles.field}>
@@ -66,7 +90,12 @@ export default async function NuevaOTPage() {
 
           <div className={styles.field}>
             <label>Técnico Asignado</label>
-            <input type="text" name="tecnico_asignado" placeholder="Ej: Juan Pérez" />
+            <select name="tecnico_asignado" required defaultValue="">
+              <option value="" disabled>Seleccione un Técnico...</option>
+              {tecnicos.map(t => (
+                <option key={t.id} value={t.nombre}>{t.nombre} - {t.especialidad}</option>
+              ))}
+            </select>
           </div>
 
           <div className={styles.field}>
@@ -77,7 +106,9 @@ export default async function NuevaOTPage() {
         </div>
 
         <div className={styles.actions}>
-          <button type="submit" className="btn-primary">Generar Orden de Trabajo</button>
+          <button type="submit" className="btn-primary" disabled={saving}>
+            {saving ? 'Generando...' : 'Generar Orden de Trabajo'}
+          </button>
         </div>
       </form>
     </div>

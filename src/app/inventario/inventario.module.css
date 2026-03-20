@@ -145,6 +145,10 @@
   color: var(--primary);
 }
 
+.rowSelected {
+  background-color: #f0f9ff !important;
+}
+
 /* Modal */
 .overlay {
   position: fixed;

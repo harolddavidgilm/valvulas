@@ -95,7 +95,7 @@ export default function DashboardPage() {
         <div className={styles.filters}>
           <Filter size={18} />
           <select value={filterPlanta} onChange={e => setFilterPlanta(e.target.value)}>
-            <option value="Todas">Todas las Plantas</option>
+            <option value="Todas">Todos los Activos</option>
             {plantas.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
         </div>
@@ -242,9 +242,9 @@ function calculateMTBF(reparaciones: any[]) {
   let totalDiff = 0;
   let intervals = 0;
 
-  Object.values(grouped).forEach(dates => {
+  (Object.values(grouped) as number[][]).forEach((dates: number[]) => {
     if (dates.length < 2) return;
-    const sorted = dates.sort((a, b) => a - b);
+    const sorted = dates.sort((a: number, b: number) => a - b);
     for (let i = 1; i < sorted.length; i++) {
       totalDiff += (sorted[i] - sorted[i-1]);
       intervals++;
