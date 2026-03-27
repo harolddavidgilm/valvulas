@@ -11,6 +11,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
 
+
   useEffect(() => {
     if (!loading && !user && pathname !== '/login') {
       router.push('/login');

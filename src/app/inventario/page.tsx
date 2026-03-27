@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Package, Plus, Search, Trash2, Edit2, AlertTriangle, ShieldCheck, Clock, CircleDollarSign, ListFilter } from 'lucide-react';
+import { Package, Plus, Search, Trash2, Edit2, AlertTriangle, ShieldCheck, Clock, CircleDollarSign, ListFilter, Loader2 } from 'lucide-react';
 import styles from './inventario.module.css';
 import HasPermission from '@/components/Auth/HasPermission';
 import InventoryUploadModal from '@/components/InventoryUploadModal/InventoryUploadModal';
@@ -205,7 +205,14 @@ export default function InventarioPage() {
               </tr>
             )}
             {loading ? (
-              <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}>Cargando inventario...</td></tr>
+              <tr>
+                <td colSpan={7} style={{ textAlign: 'center', padding: '5rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                    <Loader2 className="spinner" size={48} />
+                    <span>Sincronizando Stock con Almacén...</span>
+                  </div>
+                </td>
+              </tr>
             ) : filtered.map(r => (
               <tr key={r.id} className={selectedIds.includes(r.id) ? styles.rowSelected : ''}>
                 <td>

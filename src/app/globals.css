@@ -153,10 +153,21 @@ input:focus, select:focus {
 }
 
 /* Label styling global */
+
 label {
   display: block;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-muted);
   margin-bottom: 0.5rem;
+}
+
+/* Spinner and Animations */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

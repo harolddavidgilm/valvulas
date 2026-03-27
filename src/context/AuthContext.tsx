@@ -35,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       if (currentUser) {
+        setLoading(true); // Ensure we show loading while fetching the new profile
         await fetchProfile(currentUser.id);
       } else {
         setProfile(null);
@@ -52,6 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .select('*')
         .eq('id', userId)
         .single();
+
 
       if (error) {
         console.error('Error fetching profile:', error);

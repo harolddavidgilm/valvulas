@@ -18,17 +18,36 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    console.log('Attempting login with:', email);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
+      console.log('Login result:', { hasData: !!data, error: error?.message });
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+      } else {
+        console.log('Login successful, navigating to dashboard...');
+        router.push('/');
+        
+        // Safety fallback: if navigation doesn't happen in 3 seconds, force it
+        const timeout = setTimeout(() => {
+          if (window.location.pathname === '/login') {
+            console.warn('Navigation taking too long, forcing with window.location');
+            window.location.href = '/';
+          }
+        }, 3000);
+        
+        return () => clearTimeout(timeout);
+      }
+    } catch (err: any) {
+      console.error('Unexpected login error:', err);
+      setError(err.message || 'Error inesperado');
       setLoading(false);
-    } else {
-      router.push('/');
-      router.refresh();
     }
   };
 

@@ -311,7 +311,10 @@ export default function ProgramacionPage() {
         </div>
 
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>Cargando calendario...</div>
+          <div style={{ padding: '5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', color: '#64748b' }}>
+            <Loader2 className="spinner" size={48} />
+            <span>Sincronizando Calendario...</span>
+          </div>
         ) : (
           <>
             {view === 'month' && (

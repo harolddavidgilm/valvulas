@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import { 
   ShieldAlert, Calendar, LayoutDashboard, TrendingDown, Clock, 
-  CircleDollarSign, AlertTriangle, CheckCircle2, Factory, Filter
+  CircleDollarSign, AlertTriangle, CheckCircle2, Factory, Filter, Loader2
 } from 'lucide-react';
 import styles from './page.module.css';
 import RiskMatrix from '@/components/RiskMatrix/RiskMatrix';
@@ -38,7 +38,14 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
-  if (loading) return <div className={styles.loading}>Cargando Inteligencia Operativa...</div>;
+  if (loading) return (
+    <div className={styles.loading}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+        <Loader2 className="spinner" size={48} />
+        <span>Cargando Análisis de Activos...</span>
+      </div>
+    </div>
+  );
 
   // Filtros
   const plantas = Array.from(new Set(valvulas.map(v => v.ubicacion).filter(Boolean).sort()));

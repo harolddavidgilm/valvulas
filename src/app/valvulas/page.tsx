@@ -7,7 +7,7 @@ import Link from 'next/link';
 import CsvUploadModal from '@/components/CsvUploadModal/CsvUploadModal';
 import HasPermission from '@/components/Auth/HasPermission';
 import { useAuth } from '@/context/AuthContext';
-import { Trash2, Edit2, Plus, Info } from 'lucide-react';
+import { Trash2, Edit2, Plus, Info, Loader2 } from 'lucide-react';
 
 export default function ValvulasPage() {
   const [valvulas, setValvulas] = useState<any[]>([]);
@@ -39,7 +39,12 @@ export default function ValvulasPage() {
     }
   }
 
-  if (loading) return <div className="loading">Cargando inventario de activos...</div>;
+  if (loading) return (
+    <div className="loading" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <Loader2 className="spinner" size={40} />
+      <span>Cargando inventario de activos...</span>
+    </div>
+  );
 
   return (
     <div className={styles.container}>

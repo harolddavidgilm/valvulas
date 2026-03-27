@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { 
-  TrendingUp, AlertTriangle, ShieldCheck, ChevronRight, 
+import {
+  TrendingUp, AlertTriangle, ShieldCheck, ChevronRight,
   Search, Filter, Plus, FileText, Calendar, Activity, X, Check, Loader2
 } from 'lucide-react';
 import RiskMatrix from '@/components/RiskMatrix/RiskMatrix';
@@ -14,12 +14,12 @@ export default function RBIPage() {
   const [valvulas, setValvulas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Modal State
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [selectedValvula, setSelectedValvula] = useState<any>(null);
-  
+
   // Evaluation State
   const [evalData, setEvalData] = useState({
     pof: { edad: 1, historial: 1, condiciones: 1, fluido: 1 },
@@ -44,12 +44,12 @@ export default function RBIPage() {
   async function fetchData() {
     setLoading(true);
     console.log('RBI: Iniciando carga de válvulas...');
-    
+
     // Usamos select('*') para evitar errores de columnas inexistentes mientras se propaga el esquema
     const { data, error } = await supabase
       .from('valvulas')
       .select('*');
-    
+
     if (error) {
       console.error('RBI Error:', error);
       alert('Error cargando válvulas: ' + error.message);
@@ -82,7 +82,7 @@ export default function RBIPage() {
   const calcPOF = Math.max(evalData.pof.edad, evalData.pof.historial, evalData.pof.condiciones, evalData.pof.fluido);
   const calcCOF = Math.max(evalData.cof.seguridad, evalData.cof.ambiental, evalData.cof.economico);
   const riskValue = calcPOF * calcCOF;
-  
+
   let riskLevel: 'Bajo' | 'Medio' | 'Alto' | 'Crítico' = 'Bajo';
   let interval = 48; // meses
   if (riskValue >= 20 || (calcPOF === 5 && calcCOF >= 4)) { riskLevel = 'Crítico'; interval = 12; }
@@ -92,7 +92,7 @@ export default function RBIPage() {
   async function handleSubmit() {
     if (!selectedValvula) return alert('Seleccione una válvula');
     setSaving(true);
-    
+
     const proximaFecha = new Date();
     proximaFecha.setMonth(proximaFecha.getMonth() + interval);
 
@@ -122,7 +122,7 @@ export default function RBIPage() {
     setSaving(false);
   }
 
-  const filteredValvulas = valvulas.filter(v => 
+  const filteredValvulas = valvulas.filter(v =>
     v.tag.toLowerCase().includes(searchTerm.toLowerCase()) ||
     v.servicio.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -150,12 +150,12 @@ export default function RBIPage() {
               <h3>Nueva Evaluación de Riesgo</h3>
               <button onClick={() => setShowModal(false)}><X size={24} /></button>
             </div>
-            
+
             <div className={styles.modalBody}>
               <div className={styles.formSection}>
                 <h4>1. Equipo a Evaluar</h4>
-                <select 
-                  className={styles.input} 
+                <select
+                  className={styles.input}
                   onChange={(e) => setSelectedValvula(valvulas.find(v => v.id === e.target.value))}
                   value={selectedValvula?.id || ''}
                 >
@@ -275,9 +275,9 @@ export default function RBIPage() {
               <h3>Ranking de Prioridad</h3>
               <div className={styles.searchBox}>
                 <Search size={18} />
-                <input 
-                  type="text" 
-                  placeholder="Buscar por TAG..." 
+                <input
+                  type="text"
+                  placeholder="Buscar por TAG..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
@@ -285,7 +285,10 @@ export default function RBIPage() {
             </div>
             <div className={styles.valveList}>
               {loading ? (
-                <div className={styles.loading}>Cargando datos...</div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '3rem' }}>
+                  <Loader2 className="spinner" size={40} />
+                  <span>Cargando Análisis de Riesgo...</span>
+                </div>
               ) : filteredValvulas.map(v => (
                 <div key={v.id} className={styles.valveItem}>
                   <div className={styles.tagLabel}>
