@@ -110,7 +110,7 @@ export default function ValvulasPage() {
         </div>
         
         <HasPermission roles={['admin', 'supervisor', 'tecnico']}>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div className={styles.topActions}>
             <CsvUploadModal />
             <Link href="/valvulas/nueva" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Plus size={18} /> Agregar Válvula
@@ -134,7 +134,7 @@ export default function ValvulasPage() {
         </div>
       </div>
 
-      <div className="glass" style={{ marginTop: '2rem', overflow: 'hidden' }}>
+      <div className="glass" style={{ marginTop: '2rem', overflowX: 'auto' }}>
         <table className={styles.table}>
           <thead>
             <tr>

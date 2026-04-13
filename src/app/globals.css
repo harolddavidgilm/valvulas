@@ -67,6 +67,13 @@ body {
   }
 }
 
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.75rem;
+    padding-top: 0.5rem;
+  }
+}
+
 /* Ensure all glass containers allow horizontal scrolling if they contain tables */
 .glass {
   overflow-x: auto;

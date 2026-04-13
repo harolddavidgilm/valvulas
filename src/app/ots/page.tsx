@@ -102,14 +102,16 @@ export default function WorkOrdersPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.titleInfo}>
-          <button className="btn-secondary" onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+          <button className="btn-secondary" onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', width: 'fit-content' }}>
             <ArrowLeft size={18} /> Volver al Dashboard
           </button>
           <h2>Gestión de Mantenimiento (Órdenes de Trabajo)</h2>
         </div>
-        <Link href="/ots/nueva" className="btn-primary">
-          + Nueva OT
-        </Link>
+        <div className={styles.topActions}>
+          <Link href="/ots/nueva" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+            + Nueva OT
+          </Link>
+        </div>
       </div>
 
       <div className={`${styles.tableContainer} glass`}>

@@ -236,7 +236,17 @@
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
   .infoGrid, .grid2, .grid3, .uploadGrid {
     grid-template-columns: 1fr;
+  }
+  .formSection {
+    padding: 1.25rem;
+  }
+  .smartComparison {
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 }

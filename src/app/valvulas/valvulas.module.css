@@ -55,7 +55,25 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.topActions {
+  display: flex;
   gap: 1rem;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .topActions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.5rem;
+  }
+  .topActions > * {
+    width: 100%;
+  }
 }
 
 /* Quitando glassmorphism oscuro y aplicando diseño limpio */
@@ -168,7 +186,12 @@
   }
   
   .table th, .table td {
-    padding: 0.75rem 0.5rem;
-    font-size: 0.85rem;
+    padding: 0.6rem 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  .badge {
+    padding: 4px 8px;
+    font-size: 0.65rem;
   }
 }

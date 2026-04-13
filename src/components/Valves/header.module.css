@@ -2,30 +2,46 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  gap: 1.5rem;
 }
 
 .titleInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
-
-.backBtn {
-  color: #64748b;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.backBtn:hover {
-  color: #1e293b;
 }
 
 .header h2 {
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 800;
   color: #1e293b;
   margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+@media (max-width: 1024px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 2rem;
+  }
+  
+  .titleInfo h2 {
+    font-size: 1.6rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .actions a {
+    width: 100%;
+    justify-content: center;
+  }
 }
