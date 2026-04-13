@@ -39,29 +39,38 @@ body {
 /* Overall layout wrapping the app to match the design */
 .layout {
   display: flex;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   background: var(--main-bg);
-  border-radius: 0;
-  box-shadow: none;
   overflow: hidden;
 }
 
 .main-content {
   flex: 1;
-  padding: 2rem 3rem;
+  padding: 2.5rem;
   overflow-y: auto;
   background: var(--main-bg);
+  min-width: 0;
 }
 
-/* Make it responsive */
-@media (max-width: 768px) {
+/* Responsive adjustments */
+@media (max-width: 1024px) {
   .layout {
     flex-direction: column;
+    height: auto;
+    overflow: visible;
   }
   .main-content {
     padding: 1.5rem;
+    padding-top: 1rem;
+    overflow-y: visible;
   }
+}
+
+/* Ensure all glass containers allow horizontal scrolling if they contain tables */
+.glass {
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 /* Typography styles */

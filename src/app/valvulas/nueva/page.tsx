@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { ArrowLeft } from 'lucide-react';
 import styles from './nueva.module.css';
 
 export default function NuevaValvulaPage() {
@@ -46,10 +47,12 @@ export default function NuevaValvulaPage() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <button onClick={() => router.back()} className={styles.backBtn}>← Volver</button>
+      <header className={styles.header}>
+        <button className="btn-secondary" onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+          <ArrowLeft size={18} /> Volver
+        </button>
         <h2>Registrar Nueva Válvula</h2>
-      </div>
+      </header>
 
       <form onSubmit={handleSubmit} className={`${styles.form} glass`}>
         <div className={styles.grid}>

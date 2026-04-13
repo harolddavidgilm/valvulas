@@ -97,6 +97,23 @@
   border-bottom: 1px solid #e2e8f0;
 }
 
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+}
+
+.headerCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sortable:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
 .table td {
   padding: 1rem;
   font-size: 0.9rem;

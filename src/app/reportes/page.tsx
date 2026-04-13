@@ -4,15 +4,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { ReportTemplate } from '@/components/Reports/ReportTemplate';
-import { 
-  FileText, Download, Calendar, Loader2, Filter, 
-  BarChart, ListChecks, CheckCircle2, AlertTriangle, 
-  TrendingUp, Table, Printer, Search
-} from 'lucide-react';
+import { FileText, Download, Calendar, Loader2, Filter, BarChart, ListChecks, CheckCircle2, AlertTriangle, TrendingUp, Table, Printer, Search, ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import HasPermission from '@/components/Auth/HasPermission';
 import styles from './reportes.module.css';
 
 export default function ReportesPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
   const [selectedType, setSelectedType] = useState('mensual');
@@ -76,6 +74,9 @@ export default function ReportesPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.titleInfo}>
+          <button className="btn-secondary" onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+            <ArrowLeft size={18} /> Volver al Dashboard
+          </button>
           <h1>Generación de Informes Técnicos</h1>
           <p>Cumplimiento normativo ASME/API y Gestión Logística</p>
         </div>
@@ -163,7 +164,7 @@ export default function ReportesPage() {
             <div className={styles.iconCircle}>
               <Download size={32} />
             </div>
-            <h2>Exportar PDF Certificado</h2>
+            <h2>Exportar PDF</h2>
             <p>
               {selectedType === 'hoja-vida' 
                 ? `Se generará el historial completo para la válvula ${currentValve?.tag || ''}.` 

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { 
@@ -11,6 +12,7 @@ import styles from './tecnicos.module.css';
 import Link from 'next/link';
 
 export default function TecnicosPage() {
+  const router = useRouter();
   const { role } = useAuth();
   const [tecnicos, setTecnicos] = useState<any[]>([]);
   const [ots, setOts] = useState<any[]>([]);
@@ -106,24 +108,32 @@ export default function TecnicosPage() {
     }
   }
 
+  const workloads = useMemo(() => {
+    const map = new Map();
+    tecnicos.forEach(t => {
+      const assignedOts = ots.filter(ot => ot.tecnico_asignado === t.nombre);
+      const pendingOts = assignedOts.filter(ot => ot.estado !== 'EJECUTADO' && ot.estado !== 'CERRADA').length;
+      const uniqueValves = new Set(assignedOts.map(ot => ot.valvula_id)).size;
+      map.set(t.nombre, {
+        total: assignedOts.length,
+        pending: pendingOts,
+        valves: uniqueValves
+      });
+    });
+    return map;
+  }, [tecnicos, ots]);
+
   const getWorkload = (nombreTecnico: string) => {
-    const assignedOts = ots.filter(ot => ot.tecnico_asignado === nombreTecnico);
-    const pendingOts = assignedOts.filter(ot => ot.estado !== 'EJECUTADO' && ot.estado !== 'CERRADA').length;
-    
-    // Count unique valves
-    const uniqueValves = new Set(assignedOts.map(ot => ot.valvula_id)).size;
-    
-    return {
-      total: assignedOts.length,
-      pending: pendingOts,
-      valves: uniqueValves
-    };
+    return workloads.get(nombreTecnico) || { total: 0, pending: 0, valves: 0 };
   };
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.titleInfo}>
+          <button className="btn-secondary" onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+            <ArrowLeft size={18} /> Volver al Dashboard
+          </button>
           <h1>Directorio de Técnicos</h1>
           <p>Gestión del personal de mantenimiento y carga de trabajo</p>
         </div>

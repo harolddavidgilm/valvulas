@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -38,6 +38,49 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
+  // Memoized Calculations
+  const { 
+    plantas, filteredValvulas, vencidas, cumplimiento, 
+    costoTotal, mtbf, estadoData, interventionsData 
+  } = useMemo(() => {
+    const p = Array.from(new Set(valvulas.map(v => v.ubicacion).filter(Boolean).sort()));
+    const fV = filterPlanta === 'Todas' ? valvulas : valvulas.filter(v => v.ubicacion === filterPlanta);
+    const fIds = new Set(fV.map(v => v.id));
+    const fP = pruebas.filter(p => fIds.has(p.valvula_id));
+    const fR = reparaciones.filter(r => fIds.has(r.valvula_id));
+
+    const hoy = new Date('2026-03-20');
+    const vC = fV.filter(v => v.proxima_calibracion && new Date(v.proxima_calibracion) < hoy).length;
+    const cC = fP.filter(p => p.conforme).length;
+    const cP = fP.length > 0 ? (cC / fP.length) * 100 : 0;
+    const cT = fR.reduce((acc, current) => acc + (current.costo_total || 0), 0);
+    const m = calculateMTBF(fR);
+
+    const eD = [
+      { name: 'Operativa', value: fV.filter(v => v.estado === 'OPERATIVA' || !v.estado).length, color: '#10b981' },
+      { name: 'Mant.', value: fV.filter(v => v.estado === 'MANTENIMIENTO').length, color: '#f59e0b' },
+      { name: 'BAJA', value: fV.filter(v => v.estado === 'BAJA').length, color: '#ef4444' },
+    ];
+
+    const iD = [
+      { name: 'Ene', pruebas: 12, reparaciones: 4 },
+      { name: 'Feb', pruebas: 8, reparaciones: 2 },
+      { name: 'Mar', pruebas: 15, reparaciones: 6 },
+      { name: 'Abr', pruebas: 10, reparaciones: 3 },
+    ];
+
+    return {
+      plantas: p,
+      filteredValvulas: fV,
+      vencidas: vC,
+      cumplimiento: cP,
+      costoTotal: cT,
+      mtbf: m,
+      estadoData: eD,
+      interventionsData: iD
+    };
+  }, [valvulas, pruebas, reparaciones, filterPlanta]);
+
   if (loading) return (
     <div className={styles.loading}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
@@ -46,51 +89,6 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-
-  // Filtros
-  const plantas = Array.from(new Set(valvulas.map(v => v.ubicacion).filter(Boolean).sort()));
-  const filteredValvulas = filterPlanta === 'Todas' ? valvulas : valvulas.filter(v => v.ubicacion === filterPlanta);
-  const filteredIds = new Set(filteredValvulas.map(v => v.id));
-  const filteredPruebas = pruebas.filter(p => filteredIds.has(p.valvula_id));
-  const filteredReparaciones = reparaciones.filter(r => filteredIds.has(r.valvula_id));
-  const filteredOts = ots.filter(o => filteredIds.has(o.valvula_id));
-
-  // Cálculos KPIs
-  const totalValvulas = filteredValvulas.length;
-  
-  // Vencidas: Simulamos que hoy es 2026-03-20
-  const hoy = new Date('2026-03-20');
-  const vencidas = filteredValvulas.filter(v => {
-    if (!v.proxima_calibracion) return false;
-    return new Date(v.proxima_calibracion) < hoy;
-  }).length;
-
-  // Cumplimiento: (Ejecutadas en periodo / Programadas en periodo)
-  // Como simplificación: (% Pruebas Conformes en el último año)
-  const conformes = filteredPruebas.filter(p => p.conforme).length;
-  const cumplimiento = filteredPruebas.length > 0 ? (conformes / filteredPruebas.length) * 100 : 0;
-  
-  // Costo Total
-  const costoTotal = filteredReparaciones.reduce((acc, current) => acc + (current.costo_total || 0), 0);
-
-  // MTBF: Promedio de días entre reparaciones para válvulas con más de una reparación
-  const mtbf = calculateMTBF(filteredReparaciones);
-
-  // Datos para Gráficas
-  // 1. Distribución por Estado
-  const estadoData = [
-    { name: 'Operativa', value: filteredValvulas.filter(v => v.estado === 'OPERATIVA' || !v.estado).length, color: '#10b981' },
-    { name: 'Mant.', value: filteredValvulas.filter(v => v.estado === 'MANTENIMIENTO').length, color: '#f59e0b' },
-    { name: 'BAJA', value: filteredValvulas.filter(v => v.estado === 'BAJA').length, color: '#ef4444' },
-  ];
-
-  // 2. Intervenciones Mensuales (Simulado)
-  const interventionsData = [
-    { name: 'Ene', pruebas: 12, reparaciones: 4 },
-    { name: 'Feb', pruebas: 8, reparaciones: 2 },
-    { name: 'Mar', pruebas: 15, reparaciones: 6 },
-    { name: 'Abr', pruebas: 10, reparaciones: 3 },
-  ];
 
   return (
     <div className={styles.container}>

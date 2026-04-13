@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Pencil, Trash2, X, Save, Loader2 } from 'lucide-react';
+import { Pencil, Trash2, X, Save, Loader2, ArrowLeft } from 'lucide-react';
 import HasPermission from '@/components/Auth/HasPermission';
 import styles from './ots.module.css';
 
 export default function WorkOrdersPage() {
+  const router = useRouter();
   const [ots, setOts] = useState<any[]>([]);
   const [tecnicos, setTecnicos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -99,7 +101,12 @@ export default function WorkOrdersPage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2>Gestión de Mantenimiento (Órdenes de Trabajo)</h2>
+        <div className={styles.titleInfo}>
+          <button className="btn-secondary" onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+            <ArrowLeft size={18} /> Volver al Dashboard
+          </button>
+          <h2>Gestión de Mantenimiento (Órdenes de Trabajo)</h2>
+        </div>
         <Link href="/ots/nueva" className="btn-primary">
           + Nueva OT
         </Link>

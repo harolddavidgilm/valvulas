@@ -1,12 +1,6 @@
-.formContainer {
-  padding: 2.5rem;
-  margin-top: 2rem;
-  max-width: 600px;
-}
-
-.inputs {
-  display: flex;
-  flex-direction: column;
+.gridContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
 }
 
@@ -17,39 +11,70 @@
 }
 
 .field label {
-  font-size: 0.75rem;
-  color: #64748b;
+  font-size: 0.85rem;
+  color: #475569;
   font-weight: 600;
-  text-transform: uppercase;
 }
 
 .field input,
 .field select,
 .field textarea {
-  background: white;
-  border: 1px solid #cbd5e1;
-  padding: 0.75rem;
-  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
   color: #0f172a;
   font-size: 0.95rem;
   width: 100%;
+  transition: all 0.2s ease;
 }
 
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  background: #fff;
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+}
+
+.multiSelect {
+  min-height: 150px;
+  padding: 0.5rem !important;
+}
+
+.multiSelect option {
+  padding: 0.5rem 1rem;
+  margin-bottom: 2px;
+  border-radius: 6px;
 }
 
 .field textarea {
   resize: vertical;
-  min-height: 100px;
+  grid-column: span 2;
 }
 
-.actions {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: flex-end;
+.cancelBtn {
+  padding: 0.75rem 2rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelBtn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+@media (max-width: 768px) {
+  .gridContainer {
+    grid-template-columns: 1fr;
+  }
+  .field textarea {
+    grid-column: span 1;
+  }
 }

@@ -121,8 +121,10 @@ export default function UsuariosPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.titleInfo}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Link href="/" style={{ color: '#64748b' }}><ArrowLeft size={24} /></Link>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <button className="btn-secondary" onClick={() => (window.location.href = '/')} style={{ display: 'flex', alignItems: 'center', gap: '8px', width: 'fit-content' }}>
+              <ArrowLeft size={18} /> Volver al Dashboard
+            </button>
             <h1>Usuarios y Control de Acceso</h1>
           </div>
           <p>Administración centralizada de personal y permisos</p>

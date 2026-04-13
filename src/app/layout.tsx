@@ -6,6 +6,9 @@ import ProtectedLayout from '@/components/Layout/ProtectedLayout';
 export const metadata: Metadata = {
   title: 'Gestión Válvulas PSV/PRV CMMS',
   description: 'Sistema de Integridad Mecánica y Calibración de Válvulas de Seguridad',
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 export default function RootLayout({

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, ArrowLeft } from 'lucide-react';
 import styles from './programacion.module.css';
 import Link from 'next/link';
 import { PDFDownloadLink } from '@react-pdf/renderer';
@@ -11,6 +12,7 @@ import { Download, FileDown, Loader2 } from 'lucide-react';
 
 // Componente de cliente para el calendario dinámico
 export default function ProgramacionPage() {
+  const router = useRouter();
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -206,6 +208,9 @@ export default function ProgramacionPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
+          <button className="btn-secondary" onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+            <ArrowLeft size={18} /> Volver al Dashboard
+          </button>
           <h1 className={styles.title}>Programación de Intervenciones</h1>
           <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '4px' }}>
             Planificador visual y efectividad de ejecución

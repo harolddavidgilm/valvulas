@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Hammer, Wrench } from 'lucide-react';
+import { Hammer, Wrench, ArrowLeft } from 'lucide-react';
 import HasPermission from '@/components/Auth/HasPermission';
 import styles from './header.module.css';
 
@@ -14,7 +14,9 @@ export default function ValveDetailsHeader({ id, tag }: ValveDetailsHeaderProps)
   return (
     <header className={styles.header}>
       <div className={styles.titleInfo}>
-        <Link href="/valvulas" className={styles.backBtn}>← Volver al inventario</Link>
+        <Link href="/valvulas" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem', width: 'fit-content', textDecoration: 'none', color: 'inherit' }}>
+          <ArrowLeft size={18} /> Volver al inventario
+        </Link>
         <h2>Hoja de Vida: {tag}</h2>
       </div>
       

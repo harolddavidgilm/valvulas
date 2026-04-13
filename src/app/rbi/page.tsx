@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
   TrendingUp, AlertTriangle, ShieldCheck, ChevronRight,
-  Search, Filter, Plus, FileText, Calendar, Activity, X, Check, Loader2
+  Search, Filter, Plus, FileText, Calendar, Activity, X, Check, Loader2, ArrowLeft
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import RiskMatrix from '@/components/RiskMatrix/RiskMatrix';
 import styles from './rbi.module.css';
 import Link from 'next/link';
 
 export default function RBIPage() {
+  const router = useRouter();
   const [valvulas, setValvulas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -131,6 +133,9 @@ export default function RBIPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.titleInfo}>
+          <button className="btn-secondary" onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+            <ArrowLeft size={18} /> Volver al Dashboard
+          </button>
           <h1>Análisis de Inspecciones Basadas en Riesgo (RBI)</h1>
           <p>Modelado de probabilidad y consecuencia según API 580/581</p>
         </div>

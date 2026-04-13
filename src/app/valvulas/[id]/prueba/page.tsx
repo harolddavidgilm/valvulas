@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { calculateASMETolerance } from '@/lib/valve-logic';
-import { Camera, FileText, CloudUpload, Loader2, BarChart3, Settings2, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Camera, FileText, CloudUpload, Loader2, BarChart3, Settings2, ShieldCheck, ShieldAlert, ArrowLeft } from 'lucide-react';
 import styles from './prueba.module.css';
 
 export default function NuevaPruebaPage({ params }: { params: any }) {
@@ -160,10 +160,15 @@ export default function NuevaPruebaPage({ params }: { params: any }) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.topHeader}>
-        <h1>Registro de Pruebas Dinámico</h1>
-        <p>Activo: <strong>{valvula.tag}</strong> | S/N: {valvula.serial || 'N/A'}</p>
-      </div>
+      <header className={styles.header}>
+        <button className="btn-secondary" onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+          <ArrowLeft size={18} /> Volver
+        </button>
+        <div className={styles.topHeader}>
+          <h1>Registro de Pruebas Dinámico</h1>
+          <p>Activo: <strong>{valvula.tag}</strong> | S/N: {valvula.serial || 'N/A'}</p>
+        </div>
+      </header>
 
       <div className={styles.infoGrid}>
         <div className={`${styles.infoCard} glass`}>

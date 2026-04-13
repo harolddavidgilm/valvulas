@@ -95,7 +95,9 @@ export default function NuevaReparacionPage({ params }: { params: any }) {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <button className={styles.backBtn} onClick={() => router.back()}><ArrowLeft size={20} /></button>
+        <button className="btn-secondary" onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+          <ArrowLeft size={18} /> Volver
+        </button>
         <div>
           <h1>Registrar Reparación Mecánica</h1>
           <p>Intervención para válvula: <strong>{valvula.tag}</strong></p>

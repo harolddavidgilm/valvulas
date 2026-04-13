@@ -199,6 +199,36 @@
 .rowBadge.mantenimiento { background: #fef3c7; color: #92400e; }
 .rowBadge.baja { background: #fee2e2; color: #991b1b; }
 
+@media (max-width: 1024px) {
+  .container {
+    padding: 1rem;
+  }
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .kpiRibbon {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .titleArea h1 {
+    font-size: 1.4rem;
+  }
+  .kpiValue {
+    font-size: 1.5rem;
+  }
+  .chartCard, .matrixCard, .activeTableCard {
+    padding: 1.5rem;
+  }
+}
+
 .loading {
   display: flex;
   height: 80vh;

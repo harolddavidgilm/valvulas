@@ -1,17 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Package, Plus, Search, Trash2, Edit2, AlertTriangle, ShieldCheck, Clock, CircleDollarSign, ListFilter, Loader2 } from 'lucide-react';
+import { Package, Plus, Search, Trash2, Edit2, AlertTriangle, ShieldCheck, Clock, CircleDollarSign, ListFilter, Loader2, ArrowLeft, ChevronUp, ChevronDown } from 'lucide-react';
+import { useMemo } from 'react';
 import styles from './inventario.module.css';
 import HasPermission from '@/components/Auth/HasPermission';
 import InventoryUploadModal from '@/components/InventoryUploadModal/InventoryUploadModal';
 
 export default function InventarioPage() {
+  const router = useRouter();
   const [repuestos, setRepuestos] = useState<any[]>([]);
   const [fabricantes, setFabricantes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: 'nombre', direction: 'asc' });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   
   // Modal State
@@ -42,6 +46,14 @@ export default function InventarioPage() {
       setFabricantes(unique.sort());
     }
     setLoading(false);
+  };
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -77,10 +89,10 @@ export default function InventarioPage() {
   };
 
   const toggleSelectAll = () => {
-    if (selectedIds.length === filtered.length) {
+    if (selectedIds.length === filteredAndSorted.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(filtered.map(r => r.id));
+      setSelectedIds(filteredAndSorted.map(r => r.id));
     }
   };
 
@@ -106,15 +118,52 @@ export default function InventarioPage() {
     setIsModalOpen(true);
   };
 
-  const filtered = repuestos.filter(r => 
-    r.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.fabricante?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAndSorted = useMemo(() => {
+    let result = [...repuestos];
+
+    // Filter
+    if (searchTerm) {
+      const lowSearch = searchTerm.toLowerCase();
+      result = result.filter(r => 
+        r.nombre.toLowerCase().includes(lowSearch) ||
+        r.fabricante?.toLowerCase().includes(lowSearch) ||
+        r.tipo?.toLowerCase().includes(lowSearch)
+      );
+    }
+
+    // Sort
+    if (sortConfig.key && sortConfig.direction) {
+      result.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        // Helper to extract numbers for accurate numeric sorting
+        const parseValue = (val: any) => {
+          if (val === null || val === undefined) return '';
+          if (typeof val === 'number') return val;
+          const num = parseFloat(val.toString().replace(/,/g, ''));
+          return isNaN(num) ? val.toString().toLowerCase() : num;
+        };
+
+        const vA = parseValue(aValue);
+        const vB = parseValue(bValue);
+
+        if (vA < vB) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (vA > vB) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [repuestos, searchTerm, sortConfig]);
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <div>
+          <button className="btn-secondary" onClick={() => router.push('/')} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+            <ArrowLeft size={18} /> Volver al Dashboard
+          </button>
           <h1>Gestión de Repuestos y Marcas</h1>
           <p>Control logístico de piezas por fabricante de válvula</p>
         </div>
@@ -162,14 +211,30 @@ export default function InventarioPage() {
               <th style={{ width: '40px' }}>
                 <input 
                   type="checkbox" 
-                  checked={filtered.length > 0 && selectedIds.length === filtered.length}
+                  checked={filteredAndSorted.length > 0 && selectedIds.length === filteredAndSorted.length}
                   onChange={toggleSelectAll}
                 />
               </th>
-              <th>Repuesto / Tipo</th>
-              <th>Marca</th>
-              <th>Stock</th>
-              <th>Costo</th>
+              <th onClick={() => handleSort('nombre')} className={styles.sortable}>
+                <div className={styles.headerCell}>
+                  Repuesto / Tipo {sortConfig.key === 'nombre' && (sortConfig.direction === 'asc' ? <ChevronUp size={14}/> : <ChevronDown size={14}/>)}
+                </div>
+              </th>
+              <th onClick={() => handleSort('fabricante')} className={styles.sortable}>
+                <div className={styles.headerCell}>
+                  Marca {sortConfig.key === 'fabricante' && (sortConfig.direction === 'asc' ? <ChevronUp size={14}/> : <ChevronDown size={14}/>)}
+                </div>
+              </th>
+              <th onClick={() => handleSort('stock')} className={styles.sortable}>
+                <div className={styles.headerCell}>
+                  Stock {sortConfig.key === 'stock' && (sortConfig.direction === 'asc' ? <ChevronUp size={14}/> : <ChevronDown size={14}/>)}
+                </div>
+              </th>
+              <th onClick={() => handleSort('precio_unitario')} className={styles.sortable}>
+                <div className={styles.headerCell}>
+                  Costo {sortConfig.key === 'precio_unitario' && (sortConfig.direction === 'asc' ? <ChevronUp size={14}/> : <ChevronDown size={14}/>)}
+                </div>
+              </th>
               <th>Tiempo Entrega</th>
               <th>Acciones</th>
             </tr>
@@ -213,7 +278,7 @@ export default function InventarioPage() {
                   </div>
                 </td>
               </tr>
-            ) : filtered.map(r => (
+            ) : filteredAndSorted.map(r => (
               <tr key={r.id} className={selectedIds.includes(r.id) ? styles.rowSelected : ''}>
                 <td>
                   <input 

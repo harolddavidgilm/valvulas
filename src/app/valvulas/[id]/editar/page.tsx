@@ -40,86 +40,96 @@ export default async function EditarValvulaPage({ params }: { params: Promise<{ 
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px' }}>
-      <h2>Editar Válvula: {valvula.tag}</h2>
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: 'calc(100vh - 100px)',
+      padding: '2rem'
+    }}>
+      <div className="glass" style={{ width: '100%', maxWidth: '850px', padding: '2.5rem', borderRadius: '24px' }}>
+        <h2 style={{ marginBottom: '2rem', fontSize: '1.75rem', color: '#1e293b' }}>
+          Editar Válvula: <span style={{ color: 'var(--accent-purple)' }}>{valvula.tag}</span>
+        </h2>
 
-      <form action={updateValve} className={`${styles.formContainer} glass`}>
-        <div className={styles.grid}>
-          <div className={styles.field}>
-            <label>TAG (Identificador)</label>
-            <input name="tag" defaultValue={valvula.tag} required />
+        <form action={updateValve}>
+          <div className={styles.grid}>
+            <div className={styles.field}>
+              <label>TAG (Identificador)</label>
+              <input name="tag" defaultValue={valvula.tag} required />
+            </div>
+
+            <div className={styles.field}>
+              <label>Tipo de Válvula</label>
+              <input name="tipo" list="tipo-opciones" defaultValue={valvula.tipo} required placeholder="Ej: PSV, PCV..." />
+              <datalist id="tipo-opciones">
+                <option value="PSV">PSV (Seguridad)</option>
+                <option value="PRV">PRV (Alivio)</option>
+                <option value="TRV">TRV (Alivio Térmico)</option>
+                <option value="TEV">TEV (Expansión Térmica)</option>
+                <option value="PCV">PCV (Control de Presión)</option>
+              </datalist>
+            </div>
+
+            <div className={styles.field}>
+              <label>Estado</label>
+              <select name="estado" defaultValue={valvula.estado || 'OPERATIVA'} required>
+                <option value="OPERATIVA">OPERATIVA</option>
+                <option value="MANTENIMIENTO">MANTENIMIENTO</option>
+                <option value="FUERA DE SERVICIO">FUERA DE SERVICIO</option>
+              </select>
+            </div>
+
+            <div className={styles.field}>
+              <label>Ubicación (Planta/Área)</label>
+              <input name="ubicacion" defaultValue={valvula.ubicacion} />
+            </div>
+
+            <div className={styles.field}>
+              <label>Serial</label>
+              <input name="serial" defaultValue={valvula.serial} />
+            </div>
+
+            <div className={styles.field}>
+              <label>Año de Fabricación</label>
+              <input name="ano_fabricacion" type="number" defaultValue={valvula.ano_fabricacion} />
+            </div>
+
+            <div className={styles.field}>
+              <label>Fluido de Servicio</label>
+              <input name="fluido_servicio" defaultValue={valvula.fluido_servicio} required />
+            </div>
+
+            <div className={styles.field}>
+              <label>Normativa Aplicable</label>
+              <select name="normativa" defaultValue={valvula.normativa} required>
+                <option value="ASME VIII">ASME Sección VIII</option>
+                <option value="ASME I">ASME Sección I</option>
+              </select>
+            </div>
+
+            <div className={styles.field}>
+              <label>Presión de Operación (psi)</label>
+              <input name="presion_operacion" type="number" step="0.01" defaultValue={valvula.presion_operacion} />
+            </div>
+
+            <div className={styles.field}>
+              <label>Presión de Set (psi)</label>
+              <input name="presion_set" type="number" step="0.01" defaultValue={valvula.presion_set} required />
+            </div>
+
+            <div className={styles.field}>
+              <label>MAWP (psi)</label>
+              <input name="mawp" type="number" step="0.01" defaultValue={valvula.mawp} />
+            </div>
           </div>
 
-          <div className={styles.field}>
-            <label>Tipo de Válvula</label>
-            <input name="tipo" list="tipo-opciones" defaultValue={valvula.tipo} required placeholder="Ej: PSV, PCV..." />
-            <datalist id="tipo-opciones">
-              <option value="PSV">PSV (Seguridad)</option>
-              <option value="PRV">PRV (Alivio)</option>
-              <option value="TRV">TRV (Alivio Térmico)</option>
-              <option value="TEV">TEV (Expansión Térmica)</option>
-              <option value="PCV">PCV (Control de Presión)</option>
-            </datalist>
+          <div style={{ marginTop: '2.5rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <a href={`/valvulas/${id}`} className="btn-secondary" style={{ padding: '0.75rem 2rem', textDecoration: 'none' }}>Cancelar</a>
+            <button type="submit" className="btn-primary" style={{ padding: '0.75rem 2.5rem' }}>Guardar Cambios</button>
           </div>
-
-          <div className={styles.field}>
-            <label>Estado</label>
-            <select name="estado" defaultValue={valvula.estado || 'OPERATIVA'} required>
-              <option value="OPERATIVA">OPERATIVA</option>
-              <option value="MANTENIMIENTO">MANTENIMIENTO</option>
-              <option value="FUERA DE SERVICIO">FUERA DE SERVICIO</option>
-            </select>
-          </div>
-
-          <div className={styles.field}>
-            <label>Ubicación (Planta/Área)</label>
-            <input name="ubicacion" defaultValue={valvula.ubicacion} />
-          </div>
-
-          <div className={styles.field}>
-            <label>Serial</label>
-            <input name="serial" defaultValue={valvula.serial} />
-          </div>
-
-          <div className={styles.field}>
-            <label>Año de Fabricación</label>
-            <input name="ano_fabricacion" type="number" defaultValue={valvula.ano_fabricacion} />
-          </div>
-
-          <div className={styles.field}>
-            <label>Fluido de Servicio</label>
-            <input name="fluido_servicio" defaultValue={valvula.fluido_servicio} required />
-          </div>
-
-          <div className={styles.field}>
-            <label>Normativa Aplicable</label>
-            <select name="normativa" defaultValue={valvula.normativa} required>
-              <option value="ASME VIII">ASME Sección VIII</option>
-              <option value="ASME I">ASME Sección I</option>
-            </select>
-          </div>
-
-          <div className={styles.field}>
-            <label>Presión de Operación (psi)</label>
-            <input name="presion_operacion" type="number" step="0.01" defaultValue={valvula.presion_operacion} />
-          </div>
-
-          <div className={styles.field}>
-            <label>Presión de Set (psi)</label>
-            <input name="presion_set" type="number" step="0.01" defaultValue={valvula.presion_set} required />
-          </div>
-
-          <div className={styles.field}>
-            <label>MAWP (psi)</label>
-            <input name="mawp" type="number" step="0.01" defaultValue={valvula.mawp} />
-          </div>
-        </div>
-
-        <div className={styles.actions} style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-          <a href={`/valvulas/${id}`} className="btn-secondary">Cancelar</a>
-          <button type="submit" className="btn-primary">Guardar Cambios</button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

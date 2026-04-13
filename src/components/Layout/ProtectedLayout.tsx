@@ -23,7 +23,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     return <>{children}</>;
   }
 
-  if (loading) {
+  // If we are loading but already have a user, show the layout to avoid the "standby" flash
+  const showLoadingScreen = loading && !user;
+
+  if (showLoadingScreen) {
     return (
       <div style={{ 
         height: '100vh', 
@@ -31,15 +34,18 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        background: 'var(--app-bg)',
-        color: 'var(--primary)'
+        background: 'var(--main-bg)', // Using main-bg for consistency
+        color: 'var(--accent)'
       }}>
-        <Loader2 className="spinner" size={48} />
+        <div style={{ textAlign: 'center' }}>
+          <Loader2 className="spinner" size={48} />
+          <p style={{ marginTop: '1rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Sincronizando sesión...</p>
+        </div>
       </div>
     );
   }
 
-  if (!user) {
+  if (!loading && !user) {
     return null; // Will redirect shortly
   }
 
