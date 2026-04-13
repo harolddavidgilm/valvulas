@@ -112,7 +112,7 @@ export default function ValvulasPage() {
         <HasPermission roles={['admin', 'supervisor', 'tecnico']}>
           <div className={styles.topActions}>
             <CsvUploadModal />
-            <Link href="/valvulas/nueva" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link href="/valvulas/nueva" className="btn-primary">
               <Plus size={18} /> Agregar Válvula
             </Link>
           </div>

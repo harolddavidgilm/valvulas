@@ -98,39 +98,46 @@ h1, h2, h3 {
 }
 
 /* Buttons */
+.btn-primary, .btn-secondary, .btn-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
 .btn-primary {
   background: var(--accent);
   color: white;
   border: none;
-  padding: 10px 24px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  font-size: 0.95rem;
+  padding: 12px 24px;
 }
 
 .btn-primary:hover {
   background: var(--accent-dark);
   transform: translateY(-1px);
   box-shadow: 0 6px 15px rgba(135, 191, 160, 0.4);
+  color: white;
+  text-decoration: none;
 }
 
 .btn-secondary {
   background: #ffffff;
   color: var(--foreground);
   border: 1px solid #d1d5db;
-  padding: 10px 24px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  font-size: 0.95rem;
+  padding: 12px 24px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .btn-secondary:hover {
   background: #f8fafc;
+  color: var(--foreground);
+  text-decoration: none;
 }
 
 .btn-danger {

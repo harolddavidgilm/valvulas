@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Pencil, Trash2, X, Save, Loader2, ArrowLeft } from 'lucide-react';
+import { Pencil, Trash2, X, Save, Loader2, ArrowLeft, Plus } from 'lucide-react';
 import HasPermission from '@/components/Auth/HasPermission';
 import styles from './ots.module.css';
 
@@ -108,8 +108,8 @@ export default function WorkOrdersPage() {
           <h2>Gestión de Mantenimiento (Órdenes de Trabajo)</h2>
         </div>
         <div className={styles.topActions}>
-          <Link href="/ots/nueva" className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-            + Nueva OT
+          <Link href="/ots/nueva" className="btn-primary">
+            <Plus size={18} /> Nueva OT
           </Link>
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { FileUp, Save, Loader2, Download, CloudUpload } from 'lucide-react';
 import styles from './CsvUploadModal.module.css';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
@@ -127,7 +128,7 @@ export default function CsvUploadModal() {
   return (
     <>
       <button onClick={() => setIsOpen(true)} className="btn-secondary">
-        + Carga Masiva (CSV)
+        <FileUp size={18} /> Carga Masiva (CSV)
       </button>
 
       {isOpen && (
