@@ -103,11 +103,7 @@ export default function ProgramacionPage() {
     }
   };
 
-  const goToToday = () => {
-    setCurrentMonth(today.getMonth());
-    setCurrentYear(today.getFullYear());
-    setCurrentDate(new Date());
-  };
+
 
   const getOtStatusStyle = (ot: any) => {
     // 1. EJECUTADO (Verde) - Comparación insensible a mayúsculas
@@ -305,7 +301,7 @@ export default function ProgramacionPage() {
                 )}
               </PDFDownloadLink>
             )}
-            <button onClick={goToToday} className={styles.btnToday}>Hoy</button>
+
           </div>
         </div>
 

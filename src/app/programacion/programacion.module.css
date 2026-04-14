@@ -120,20 +120,7 @@
   color: #0f172a;
 }
 
-.btnToday {
-  background: white;
-  border: 1px solid #cbd5e1;
-  color: #475569;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
 
-.btnToday:hover {
-  background: #f1f5f9;
-}
 
 .pdfBtn {
   background: #0ea5e9;
