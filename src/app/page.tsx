@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -20,22 +20,46 @@ export default function DashboardPage() {
   const [ots, setOts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterPlanta, setFilterPlanta] = useState('Todas');
+  const lastFetchRef = useRef(0); // useRef to avoid triggering re-renders
 
-  useEffect(() => {
-    async function fetchData() {
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    try {
       const [vRes, pRes, rRes, oRes] = await Promise.all([
         supabase.from('valvulas').select('*'),
         supabase.from('pruebas_calibracion').select('*'),
         supabase.from('reparaciones').select('*'),
         supabase.from('ordenes_trabajo').select('*')
       ]);
+
+      if (vRes.error) throw vRes.error;
+
       setValvulas(vRes.data || []);
       setPruebas(pRes.data || []);
       setReparaciones(rRes.data || []);
       setOts(oRes.data || []);
-      setLoading(false);
+      lastFetchRef.current = Date.now();
+    } catch (err) {
+      console.error('Dashboard recovery fetch error:', err);
+    } finally {
+      if (showLoading) setLoading(false);
     }
+  };
+
+  // Initial fetch — runs only once on mount
+  useEffect(() => {
     fetchData();
+  }, []);
+
+  // Focus revalidation — registered once, reads ref without causing loops
+  useEffect(() => {
+    const handleFocus = () => {
+      if (Date.now() - lastFetchRef.current > 5 * 60 * 1000) {
+        fetchData(false);
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   // Memoized Calculations

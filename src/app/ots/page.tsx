@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -15,41 +15,46 @@ export default function WorkOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [editingOt, setEditingOt] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const lastFetchRef = useRef(0);
 
-  const fetchData = async () => {
-    setLoading(true);
-    // Fetch OTs
-    const { data: oData, error: oError } = await supabase
-      .from('ordenes_trabajo')
-      .select(`
-        *,
-        valvulas (
-          tag
-        )
-      `)
-      .order('fecha_programada', { ascending: true });
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    try {
+      const [oRes, tRes] = await Promise.all([
+        supabase
+          .from('ordenes_trabajo')
+          .select(`*, valvulas ( tag )`)
+          .order('fecha_programada', { ascending: true }),
+        supabase
+          .from('tecnicos')
+          .select('*')
+          .eq('activo', true)
+          .order('nombre')
+      ]);
 
-    // Fetch Tecnicos
-    const { data: tData } = await supabase
-      .from('tecnicos')
-      .select('*')
-      .eq('activo', true)
-      .order('nombre');
-
-    if (oError) {
-      console.error('Error fetching OTs:', oError);
-    } else {
-      setOts(oData || []);
+      if (oRes.error) throw oRes.error;
+      setOts(oRes.data || []);
+      if (tRes.data) setTecnicos(tRes.data);
+      lastFetchRef.current = Date.now();
+    } catch (err) {
+      console.error('Error fetching OTs:', err);
+    } finally {
+      if (showLoading) setLoading(false);
     }
-
-    if (tData) {
-      setTecnicos(tData);
-    }
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      if (Date.now() - lastFetchRef.current > 5 * 60 * 1000) {
+        fetchData(false);
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   const handleDelete = async (id: string, numOt: string) => {

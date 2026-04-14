@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Package, Plus, Search, Trash2, Edit2, AlertTriangle, ShieldCheck, Clock, CircleDollarSign, ListFilter, Loader2, ArrowLeft, ChevronUp, ChevronDown } from 'lucide-react';
@@ -31,22 +31,40 @@ export default function InventarioPage() {
     tiempo_entrega: ''
   });
 
+  const lastFetchRef = useRef(0);
+
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    try {
+      const { data: rData } = await supabase.from('repuestos').select('*').order('nombre');
+      if (rData) setRepuestos(rData);
+
+      const { data: vData } = await supabase.from('valvulas').select('fabricante');
+      if (vData) {
+        const unique = Array.from(new Set(vData.map(v => v.fabricante).filter(Boolean)));
+        setFabricantes(unique.sort());
+      }
+      lastFetchRef.current = Date.now();
+    } catch (err) {
+      console.error('Inventario fetch error:', err);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    const { data: rData } = await supabase.from('repuestos').select('*').order('nombre');
-    if (rData) setRepuestos(rData);
-
-    const { data: vData } = await supabase.from('valvulas').select('fabricante');
-    if (vData) {
-      const unique = Array.from(new Set(vData.map(v => v.fabricante).filter(Boolean)));
-      setFabricantes(unique.sort());
-    }
-    setLoading(false);
-  };
+  useEffect(() => {
+    const handleFocus = () => {
+      if (Date.now() - lastFetchRef.current > 5 * 60 * 1000) {
+        fetchData(false);
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   const handleSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';

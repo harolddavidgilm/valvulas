@@ -58,13 +58,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       } else if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         setUser(currentUser);
-        // Don't trigger loading for background updates
       }
     });
+
+    // Strategy to mitigate "standby" slowness: 
+    // Refresh session when user returns to the tab
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session) {
+            setUser(session.user);
+          } else {
+            // If session is lost after standby, force a check or redirect
+            checkSession();
+          }
+        });
+      }
+    };
+
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Periodic check every 10 minutes to keep session alive during long standby
+    const interval = setInterval(() => {
+      supabase.auth.getSession();
+    }, 10 * 60 * 1000);
 
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(interval);
     };
   }, []);
 
