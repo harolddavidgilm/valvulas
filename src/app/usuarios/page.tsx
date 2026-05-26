@@ -5,14 +5,21 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { 
   User, ShieldCheck, Mail, Calendar, AlertCircle, 
-  Save, Loader2, ArrowLeft, Trash2, Plus, X, Check
+  Save, Loader2, ArrowLeft, Trash2, Plus, X, Check, Building2
 } from 'lucide-react';
 import styles from './usuarios.module.css';
 import Link from 'next/link';
 
+interface Empresa {
+  id: string;
+  nombre: string;
+  activa: boolean;
+}
+
 export default function UsuariosPage() {
   const { role, user: currentUser } = useAuth();
   const [profiles, setProfiles] = useState<any[]>([]);
+  const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   
@@ -22,13 +29,15 @@ export default function UsuariosPage() {
     email: '',
     password: '',
     full_name: '',
-    role: 'tecnico' as any
+    role: 'tecnico' as any,
+    empresa_id: '',
   });
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (role === 'admin') {
       fetchProfiles();
+      fetchEmpresas();
     }
   }, [role]);
 
@@ -36,18 +45,26 @@ export default function UsuariosPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select('*, empresas(id, nombre)')
       .order('created_at', { ascending: false });
 
     if (data) setProfiles(data);
     setLoading(false);
   }
 
+  async function fetchEmpresas() {
+    const { data } = await supabase
+      .from('empresas')
+      .select('id, nombre, activa')
+      .eq('activa', true)
+      .order('nombre');
+    if (data) setEmpresas(data);
+  }
+
   async function handleCreateUser(e: React.FormEvent) {
     e.preventDefault();
     setCreating(true);
     try {
-      // Call the Postgres RPC function we created in SQL
       const { data, error } = await supabase.rpc('admin_create_user', {
         p_email: newUser.email,
         p_password: newUser.password,
@@ -57,9 +74,17 @@ export default function UsuariosPage() {
 
       if (error) throw error;
 
+      // Si se seleccionó empresa, asignarla al nuevo usuario
+      if (newUser.empresa_id && data) {
+        await supabase
+          .from('profiles')
+          .update({ empresa_id: newUser.empresa_id })
+          .eq('id', data);
+      }
+
       alert('Usuario creado exitosamente.');
       setIsAddingMode(false);
-      setNewUser({ email: '', password: '', full_name: '', role: 'tecnico' });
+      setNewUser({ email: '', password: '', full_name: '', role: 'tecnico', empresa_id: '' });
       fetchProfiles();
     } catch (err: any) {
       alert('Error: ' + err.message);
@@ -78,7 +103,7 @@ export default function UsuariosPage() {
     if (error) {
       alert('Error updating: ' + error.message);
     } else {
-      setProfiles(profiles.map(p => p.id === userId ? { ...p, ...updates } : p));
+      await fetchProfiles();
     }
     setUpdatingId(null);
   }
@@ -185,6 +210,18 @@ export default function UsuariosPage() {
                 <option value="admin">Administrador</option>
               </select>
             </div>
+            <div className={styles.formGroup}>
+              <label>Empresa</label>
+              <select
+                value={newUser.empresa_id}
+                onChange={e => setNewUser({...newUser, empresa_id: e.target.value})}
+              >
+                <option value="">— Sin empresa asignada —</option>
+                {empresas.map(emp => (
+                  <option key={emp.id} value={emp.id}>{emp.nombre}</option>
+                ))}
+              </select>
+            </div>
             <button type="submit" className="btn-primary" disabled={creating} style={{ alignSelf: 'flex-end' }}>
               {creating ? <Loader2 className="spinner" size={20} /> : <Check size={20} />}
               {creating ? 'Creando...' : 'Confirmar Registro'}
@@ -199,7 +236,7 @@ export default function UsuariosPage() {
             <thead>
               <tr>
                 <th>Usuario</th>
-                <th>Cargo / Identificador</th>
+                <th>Empresa</th>
                 <th>Registro</th>
                 <th>Acceso (Rol)</th>
                 <th>Acciones</th>
@@ -231,7 +268,35 @@ export default function UsuariosPage() {
                       </div>
                     </div>
                   </td>
-                  <td>Personal Operativo</td>
+
+                  {/* Columna Empresa */}
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Building2 size={14} style={{ opacity: 0.5, flexShrink: 0 }} />
+                      <select
+                        value={p.empresa_id || ''}
+                        onChange={(e) => updateProfile(p.id, { empresa_id: e.target.value || null })}
+                        disabled={updatingId === p.id}
+                        style={{
+                          border: '1px solid var(--glass-border)',
+                          background: 'rgba(255,255,255,0.05)',
+                          color: 'var(--text-primary)',
+                          borderRadius: '6px',
+                          padding: '4px 8px',
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          maxWidth: '160px',
+                        }}
+                      >
+                        <option value="">— Sin empresa —</option>
+                        {empresas.map(emp => (
+                          <option key={emp.id} value={emp.id}>{emp.nombre}</option>
+                        ))}
+                      </select>
+                      {updatingId === p.id && <Loader2 className="spinner" size={14} />}
+                    </div>
+                  </td>
+
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#64748b' }}>
                       <Calendar size={14} />
@@ -293,9 +358,34 @@ export default function UsuariosPage() {
               </li>
             </ul>
           </div>
+
+          {/* Info de empresas */}
+          <div className="card glass" style={{ padding: '1.5rem', marginTop: '1rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
+              <Building2 size={18} /> Empresas Activas
+            </h3>
+            {empresas.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                No hay empresas registradas. <Link href="/empresas" style={{ color: 'var(--accent-purple)' }}>Crear empresa →</Link>
+              </p>
+            ) : (
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {empresas.map(emp => (
+                  <li key={emp.id} style={{ fontSize: '0.88rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>{emp.nombre}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      {profiles.filter(p => p.empresa_id === emp.id).length} usuarios
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link href="/empresas" style={{ display: 'block', marginTop: '1rem', fontSize: '0.82rem', color: 'var(--accent-purple)', textDecoration: 'none' }}>
+              Gestionar empresas →
+            </Link>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Home, ClipboardList, ShieldAlert, Settings, Wrench, FileText, Calendar, LogOut, User as UserIcon, ChevronUp, ChevronDown, Menu, X } from 'lucide-react';
+import { Home, ClipboardList, ShieldAlert, Settings, Wrench, FileText, Calendar, LogOut, User as UserIcon, ChevronUp, ChevronDown, Menu, X, Building2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import HasPermission from '@/components/Auth/HasPermission';
 import styles from './styles.module.css';
@@ -94,6 +94,12 @@ export default function Sidebar() {
               <Link href="/tecnicos" className={styles.navLink} onClick={() => setIsOpen(false)}>
                 <UserIcon size={20} />
                 <span>Técnicos (Personal)</span>
+              </Link>
+            </HasPermission>
+            <HasPermission roles={['admin']}>
+              <Link href="/empresas" className={styles.navLink} onClick={() => setIsOpen(false)}>
+                <Building2 size={20} />
+                <span>Empresas</span>
               </Link>
             </HasPermission>
             <HasPermission roles={['admin']}>

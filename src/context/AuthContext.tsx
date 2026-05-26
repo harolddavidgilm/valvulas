@@ -6,10 +6,23 @@ import { User } from '@supabase/supabase-js';
 
 type Role = 'admin' | 'supervisor' | 'tecnico' | 'cliente';
 
+export interface Empresa {
+  id: string;
+  nombre: string;
+  rif?: string;
+  direccion?: string;
+  contacto_nombre?: string;
+  contacto_email?: string;
+  logo_url?: string;
+  activa: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   profile: any | null;
   role: Role;
+  empresa: Empresa | null;
+  empresaId: string | null;
   loading: boolean;
   signOut: () => Promise<void>;
   hasPermission: (requiredRoles: Role[]) => boolean;
@@ -95,10 +108,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, empresas(*)')
         .eq('id', userId)
         .single();
-
 
       if (error) {
         console.error('Error fetching profile:', error);
@@ -123,11 +135,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return requiredRoles.includes(profile.role);
   };
 
+  // Extraer la empresa del perfil (viene del join con empresas)
+  const empresa: Empresa | null = profile?.empresas ?? null;
+  const empresaId: string | null = profile?.empresa_id ?? null;
+
   return (
     <AuthContext.Provider value={{ 
       user, 
       profile, 
       role: profile?.role ?? 'cliente', 
+      empresa,
+      empresaId,
       loading, 
       signOut,
       hasPermission 

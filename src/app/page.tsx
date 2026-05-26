@@ -2,31 +2,64 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   AreaChart, Area, PieChart, Pie, Cell, Legend
 } from 'recharts';
 import { 
   ShieldAlert, Calendar, LayoutDashboard, TrendingDown, Clock, 
-  CircleDollarSign, AlertTriangle, CheckCircle2, Factory, Filter, Loader2
+  CircleDollarSign, AlertTriangle, CheckCircle2, Factory, Filter, Loader2, Building2
 } from 'lucide-react';
 import styles from './page.module.css';
 import RiskMatrix from '@/components/RiskMatrix/RiskMatrix';
 
+interface Empresa {
+  id: string;
+  nombre: string;
+}
+
 export default function DashboardPage() {
+  const { role, empresaId } = useAuth();
   const [valvulas, setValvulas] = useState<any[]>([]);
   const [pruebas, setPruebas] = useState<any[]>([]);
   const [reparaciones, setReparaciones] = useState<any[]>([]);
   const [ots, setOts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterPlanta, setFilterPlanta] = useState('Todas');
-  const lastFetchRef = useRef(0); // useRef to avoid triggering re-renders
+
+  // Admin-only: selector de empresa
+  const [empresas, setEmpresas] = useState<Empresa[]>([]);
+  const [filterEmpresa, setFilterEmpresa] = useState('Todas');
+
+  const lastFetchRef = useRef(0);
+
+  // Cargar lista de empresas solo para admin
+  useEffect(() => {
+    if (role === 'admin') {
+      supabase.from('empresas').select('id, nombre').eq('activa', true).order('nombre')
+        .then(({ data }) => { if (data) setEmpresas(data); });
+    }
+  }, [role]);
 
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
+      // Determinar el empresa_id a filtrar
+      const targetEmpresaId =
+        role === 'admin'
+          ? (filterEmpresa !== 'Todas' ? filterEmpresa : null)
+          : empresaId;
+
+      // Construir queries con filtro de empresa si aplica
+      const buildValvulasQuery = () => {
+        let q = supabase.from('valvulas').select('*');
+        if (targetEmpresaId) q = q.eq('empresa_id', targetEmpresaId);
+        return q;
+      };
+
       const [vRes, pRes, rRes, oRes] = await Promise.all([
-        supabase.from('valvulas').select('*'),
+        buildValvulasQuery(),
         supabase.from('pruebas_calibracion').select('*'),
         supabase.from('reparaciones').select('*'),
         supabase.from('ordenes_trabajo').select('*')
@@ -46,12 +79,17 @@ export default function DashboardPage() {
     }
   };
 
-  // Initial fetch — runs only once on mount
+  // Fetch inicial
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Focus revalidation — registered once, reads ref without causing loops
+  // Re-fetch cuando cambia el filtro de empresa (solo admin)
+  useEffect(() => {
+    if (role === 'admin') fetchData();
+  }, [filterEmpresa]);
+
+  // Focus revalidation
   useEffect(() => {
     const handleFocus = () => {
       if (Date.now() - lastFetchRef.current > 5 * 60 * 1000) {
@@ -121,14 +159,47 @@ export default function DashboardPage() {
           <h1>Dashboard de Integridad Operativa</h1>
           <p>Análisis en tiempo real de activos críticos</p>
         </div>
-        <div className={styles.filters}>
-          <Filter size={18} />
-          <select value={filterPlanta} onChange={e => setFilterPlanta(e.target.value)}>
-            <option value="Todas">Todos los Activos</option>
-            {plantas.map(p => <option key={p} value={p}>{p}</option>)}
-          </select>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {/* Filtro por Empresa — solo admin */}
+          {role === 'admin' && (
+            <div className={styles.filters} style={{ borderRight: '1px solid var(--glass-border)', paddingRight: '0.75rem' }}>
+              <Building2 size={16} style={{ opacity: 0.6 }} />
+              <select value={filterEmpresa} onChange={e => setFilterEmpresa(e.target.value)}>
+                <option value="Todas">Todas las Empresas</option>
+                {empresas.map(emp => (
+                  <option key={emp.id} value={emp.id}>{emp.nombre}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className={styles.filters}>
+            <Filter size={18} />
+            <select value={filterPlanta} onChange={e => setFilterPlanta(e.target.value)}>
+              <option value="Todas">Todos los Activos</option>
+              {plantas.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
         </div>
       </header>
+
+      {/* Indicador de empresa activa para no-admin */}
+      {role !== 'admin' && empresaId && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '0.6rem 1rem',
+          background: 'rgba(139, 92, 246, 0.08)',
+          border: '1px solid rgba(139, 92, 246, 0.2)',
+          borderRadius: '8px',
+          marginBottom: '1.5rem',
+          fontSize: '0.85rem',
+          color: 'var(--text-muted)',
+        }}>
+          <Building2 size={15} style={{ color: 'var(--accent-purple)' }} />
+          Mostrando datos de tu empresa
+        </div>
+      )}
 
       {/* Ribbon de Indicadores con Semáforos */}
       <div className={styles.kpiRibbon}>
@@ -261,7 +332,6 @@ export default function DashboardPage() {
 
 function calculateMTBF(reparaciones: any[]) {
   if (reparaciones.length < 2) return 0;
-  // Agrupar por válvula
   const grouped = reparaciones.reduce((acc, r) => {
     if (!acc[r.valvula_id]) acc[r.valvula_id] = [];
     acc[r.valvula_id].push(new Date(r.fecha_reparacion || r.created_at).getTime());
@@ -281,5 +351,5 @@ function calculateMTBF(reparaciones: any[]) {
   });
 
   if (intervals === 0) return 0;
-  return totalDiff / (1000 * 60 * 60 * 24 * intervals); // MTBF en días
+  return totalDiff / (1000 * 60 * 60 * 24 * intervals);
 }

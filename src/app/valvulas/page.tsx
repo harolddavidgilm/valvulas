@@ -8,7 +8,7 @@ import CsvUploadModal from '@/components/CsvUploadModal/CsvUploadModal';
 import HasPermission from '@/components/Auth/HasPermission';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { Trash2, Edit2, Plus, Loader2, ArrowLeft, Search, ChevronUp, ChevronDown } from 'lucide-react';
+import { Trash2, Edit2, Plus, Loader2, ArrowLeft, Search, ChevronUp, ChevronDown, Building2 } from 'lucide-react';
 
 export default function ValvulasPage() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function ValvulasPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: 'tag', direction: 'asc' });
   const lastFetchRef = useRef(0);
-  const { role } = useAuth();
+  const { role, empresaId, empresa } = useAuth();
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 50;
@@ -25,7 +25,12 @@ export default function ValvulasPage() {
   const fetchValvulas = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
-      const { data, error } = await supabase.from('valvulas').select('*');
+      let query = supabase.from('valvulas').select('*');
+      // Filtrar por empresa si el usuario no es admin
+      if (role !== 'admin' && empresaId) {
+        query = query.eq('empresa_id', empresaId);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       if (data) {
         setValvulas(data);
@@ -38,9 +43,10 @@ export default function ValvulasPage() {
     }
   };
 
+  // Re-fetch when auth context loads (role and empresaId become available)
   useEffect(() => {
     fetchValvulas();
-  }, []);
+  }, [role, empresaId]);
 
   useEffect(() => {
     const handleFocus = () => {
@@ -139,6 +145,11 @@ export default function ValvulasPage() {
           </button>
           <h2>Gestión de Activos (Válvulas PSV/PRV)</h2>
           <p>Inventario centralizado y trazabilidad técnica</p>
+          {empresa && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '0.4rem', padding: '4px 10px', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--accent-purple)' }}>
+              <Building2 size={13} /> {empresa.nombre}
+            </div>
+          )}
         </div>
         
         <HasPermission roles={['admin', 'supervisor', 'tecnico']}>
