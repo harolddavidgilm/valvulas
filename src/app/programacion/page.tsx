@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, ArrowLeft } from 'lucide-react';
 import styles from './programacion.module.css';
 import Link from 'next/link';
@@ -13,6 +14,7 @@ import { Download, FileDown, Loader2 } from 'lucide-react';
 // Componente de cliente para el calendario dinámico
 export default function ProgramacionPage() {
   const router = useRouter();
+  const { role, empresaId } = useAuth();
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -27,19 +29,24 @@ export default function ProgramacionPage() {
     async function loadData() {
       setLoading(true);
       
-      // Fetch OTs
-      const { data: oData, error: oErr } = await supabase
+      // Fetch OTs — filtrar por empresa para no-admin
+      let otsQuery = supabase
         .from('ordenes_trabajo')
-        .select(`
-        id, 
-        num_ot, 
-        estado, 
-        fecha_programada, 
-        fecha_ejecucion,
-        valvula_id,
-        tecnico_asignado,
-        valvulas ( tag )
-      `);
+        .select(`id, num_ot, estado, fecha_programada, fecha_ejecucion, valvula_id, tecnico_asignado, valvulas ( tag, empresa_id )`);
+
+      // Si no es admin, filtrar por empresa a través del join con valvulas
+      if (role !== 'admin' && empresaId) {
+        // Primero obtener IDs de valvulas de la empresa
+        const { data: vIds } = await supabase
+          .from('valvulas')
+          .select('id')
+          .eq('empresa_id', empresaId);
+        if (vIds && vIds.length > 0) {
+          otsQuery = otsQuery.in('valvula_id', vIds.map(v => v.id));
+        }
+      }
+
+      const { data: oData, error: oErr } = await otsQuery;
 
       // Fetch Tecnicos
       const { data: tData } = await supabase.from('tecnicos').select('*').order('nombre');
@@ -49,7 +56,7 @@ export default function ProgramacionPage() {
       setLoading(false);
     }
     loadData();
-  }, []);
+  }, [role, empresaId]);
 
   // Cálculos del Calendario
   const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];

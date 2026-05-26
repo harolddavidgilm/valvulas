@@ -1,15 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { ArrowLeft, Building2 } from 'lucide-react';
 import styles from './nueva.module.css';
 
 export default function NuevaValvulaPage() {
   const router = useRouter();
+  const { role, empresaId, empresa } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [empresas, setEmpresas] = useState<{ id: string; nombre: string }[]>([]);
+
+  // Load empresas only for admin users
+  useEffect(() => {
+    if (role === 'admin') {
+      supabase
+        .from('empresas')
+        .select('id, nombre')
+        .eq('activa', true)
+        .order('nombre')
+        .then(({ data }) => {
+          if (data) setEmpresas(data);
+        });
+    }
+  }, [role]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,24 +34,28 @@ export default function NuevaValvulaPage() {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+
     const data = {
       tag: formData.get('tag') as string,
       tipo: formData.get('tipo') as string,
       fluido_servicio: formData.get('fluido_servicio') as string,
       ubicacion: formData.get('ubicacion') as string,
       serial: formData.get('serial') as string,
-      ano_fabricacion: formData.get('ano_fabricacion') ? parseInt(formData.get('ano_fabricacion') as string) : null,
+      ano_fabricacion: formData.get('ano_fabricacion')
+        ? parseInt(formData.get('ano_fabricacion') as string)
+        : null,
       presion_set: parseFloat(formData.get('presion_set') as string),
-      presion_operacion: formData.get('presion_operacion') ? parseFloat(formData.get('presion_operacion') as string) : null,
+      presion_operacion: formData.get('presion_operacion')
+        ? parseFloat(formData.get('presion_operacion') as string)
+        : null,
       normativa: formData.get('normativa') as string,
       mawp: formData.get('mawp') ? parseFloat(formData.get('mawp') as string) : null,
       fabricante: formData.get('fabricante') as string,
       estado: 'OPERATIVA',
+      empresa_id: role === 'admin' ? (formData.get('empresa_id') as string || null) : empresaId,
     };
 
-    const { error: insertError } = await supabase
-      .from('valvulas')
-      .insert([data]);
+    const { error: insertError } = await supabase.from('valvulas').insert([data]);
 
     if (insertError) {
       setError(insertError.message);
@@ -48,14 +69,33 @@ export default function NuevaValvulaPage() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <button className="btn-secondary" onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
-          <ArrowLeft size={18} /> Volver
-        </button>
-        <h2>Registrar Nueva Válvula</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <button className="btn-secondary" onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: '8px', width: 'fit-content' }}>
+            <ArrowLeft size={18} /> Volver
+          </button>
+          <h2>Registrar Nueva Válvula</h2>
+          {role !== 'admin' && empresa && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--accent-purple)', width: 'fit-content' }}>
+              <Building2 size={13} /> {empresa.nombre}
+            </div>
+          )}
+        </div>
       </header>
 
       <form onSubmit={handleSubmit} className={`${styles.form} glass`}>
         <div className={styles.grid}>
+          {role === 'admin' && (
+            <div className={styles.field} style={{ gridColumn: '1 / -1' }}>
+              <label>Empresa</label>
+              <select name="empresa_id" required>
+                <option value="">Seleccione una empresa...</option>
+                {empresas.map(emp => (
+                  <option key={emp.id} value={emp.id}>{emp.nombre}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className={styles.field}>
             <label>TAG (Identificador)</label>
             <input name="tag" required placeholder="Ej: 10-PSV-001" />

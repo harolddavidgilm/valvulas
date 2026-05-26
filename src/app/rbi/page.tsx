@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import {
   TrendingUp, AlertTriangle, ShieldCheck, ChevronRight,
   Search, Filter, Plus, FileText, Calendar, Activity, X, Check, Loader2, ArrowLeft
@@ -13,6 +14,7 @@ import Link from 'next/link';
 
 export default function RBIPage() {
   const router = useRouter();
+  const { role, empresaId } = useAuth();
   const [valvulas, setValvulas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,16 +43,15 @@ export default function RBIPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [role, empresaId]);
 
   async function fetchData() {
     setLoading(true);
-    console.log('RBI: Iniciando carga de válvulas...');
-
-    // Usamos select('*') para evitar errores de columnas inexistentes mientras se propaga el esquema
-    const { data, error } = await supabase
-      .from('valvulas')
-      .select('*');
+    let query = supabase.from('valvulas').select('*');
+    if (role !== 'admin' && empresaId) {
+      query = query.eq('empresa_id', empresaId);
+    }
+    const { data, error } = await query;
 
     if (error) {
       console.error('RBI Error:', error);

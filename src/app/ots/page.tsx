@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Pencil, Trash2, X, Save, Loader2, ArrowLeft, Plus } from 'lucide-react';
@@ -10,6 +11,7 @@ import styles from './ots.module.css';
 
 export default function WorkOrdersPage() {
   const router = useRouter();
+  const { role, empresaId } = useAuth();
   const [ots, setOts] = useState<any[]>([]);
   const [tecnicos, setTecnicos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,11 +22,35 @@ export default function WorkOrdersPage() {
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
+      // Build OTs query — filter by empresa for non-admin users
+      let otsQuery = supabase
+        .from('ordenes_trabajo')
+        .select(`*, valvulas ( tag )`)
+        .order('fecha_programada', { ascending: true });
+
+      if (role !== 'admin' && empresaId) {
+        // Fetch IDs of válvulas belonging to this empresa first
+        const { data: valvulaRows, error: vErr } = await supabase
+          .from('valvulas')
+          .select('id')
+          .eq('empresa_id', empresaId);
+
+        if (vErr) throw vErr;
+
+        const valvulaIds = (valvulaRows ?? []).map((v: { id: string }) => v.id);
+
+        if (valvulaIds.length === 0) {
+          // No válvulas for this empresa — return empty result immediately
+          setOts([]);
+          setLoading(false);
+          return;
+        }
+
+        otsQuery = otsQuery.in('valvula_id', valvulaIds);
+      }
+
       const [oRes, tRes] = await Promise.all([
-        supabase
-          .from('ordenes_trabajo')
-          .select(`*, valvulas ( tag )`)
-          .order('fecha_programada', { ascending: true }),
+        otsQuery,
         supabase
           .from('tecnicos')
           .select('*')
@@ -45,7 +71,8 @@ export default function WorkOrdersPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role, empresaId]);
 
   useEffect(() => {
     const handleFocus = () => {

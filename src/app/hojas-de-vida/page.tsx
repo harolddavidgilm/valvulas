@@ -3,12 +3,14 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Search, ChevronUp, ChevronDown, ArrowLeft, Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Search, ChevronUp, ChevronDown, ArrowLeft, Loader2, Building2 } from 'lucide-react';
 import styles from '../valvulas/valvulas.module.css';
 import Link from 'next/link';
 
 export default function HojasDeVidaPage() {
   const router = useRouter();
+  const { role, empresaId, empresa } = useAuth();
   const [valvulas, setValvulas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,7 +22,11 @@ export default function HojasDeVidaPage() {
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
-      const { data, error } = await supabase.from('valvulas').select('*');
+      let query = supabase.from('valvulas').select('*');
+      if (role !== 'admin' && empresaId) {
+        query = query.eq('empresa_id', empresaId);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       if (data) {
         setValvulas(data);
@@ -33,9 +39,10 @@ export default function HojasDeVidaPage() {
     }
   };
 
+  // Re-fetch when auth loads
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [role, empresaId]);
 
   useEffect(() => {
     const handleFocus = () => {
@@ -118,6 +125,11 @@ export default function HojasDeVidaPage() {
           </button>
           <h2>Hojas de Vida y Trazabilidad (Activos)</h2>
           <p>Seleccione una válvula para ver su historial, pruebas y configuración.</p>
+          {empresa && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '0.4rem', padding: '4px 10px', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--accent-purple)' }}>
+              <Building2 size={13} /> {empresa.nombre}
+            </div>
+          )}
         </div>
       </header>
 
