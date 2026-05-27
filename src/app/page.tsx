@@ -121,7 +121,7 @@ export default function DashboardPage() {
     const eD = [
       { name: 'Operativa', value: fV.filter(v => v.estado === 'OPERATIVA' || !v.estado).length, color: '#10b981' },
       { name: 'Mant.', value: fV.filter(v => v.estado === 'MANTENIMIENTO').length, color: '#f59e0b' },
-      { name: 'BAJA', value: fV.filter(v => v.estado === 'BAJA').length, color: '#ef4444' },
+      { name: 'BAJA', value: fV.filter(v => v.estado === 'BAJA').length, color: '#ff5a3c' },
     ];
 
     const iD = [
@@ -189,21 +189,23 @@ export default function DashboardPage() {
           alignItems: 'center',
           gap: '8px',
           padding: '0.6rem 1rem',
-          background: 'rgba(139, 92, 246, 0.08)',
-          border: '1px solid rgba(139, 92, 246, 0.2)',
+          background: 'var(--accent-light)',
+          border: '1px solid rgba(255, 90, 60, 0.2)',
           borderRadius: '8px',
           marginBottom: '1.5rem',
           fontSize: '0.85rem',
-          color: 'var(--text-muted)',
+          color: 'var(--accent)',
+          fontWeight: '600',
         }}>
-          <Building2 size={15} style={{ color: 'var(--accent-purple)' }} />
+          <Building2 size={15} style={{ color: 'var(--accent)' }} />
           Mostrando datos de tu empresa
         </div>
       )}
 
-      {/* Ribbon de Indicadores con Semáforos */}
-      <div className={styles.kpiRibbon}>
-        <div className={`${styles.kpiCard} ${cumplimiento >= 90 ? styles.success : cumplimiento >= 75 ? styles.warning : styles.danger}`}>
+      {/* Bento Grid layout combining KPIs and Charts */}
+      <div className={styles.bentoGrid}>
+        {/* KPI 1 */}
+        <div className={`${styles.kpiCard} ${styles.bentoKpi} ${cumplimiento >= 90 ? styles.success : cumplimiento >= 75 ? styles.warning : styles.danger}`}>
           <div className={styles.kpiHeader}>
             <span>Cumplimiento Plan</span>
             <CheckCircle2 size={16} />
@@ -212,7 +214,8 @@ export default function DashboardPage() {
           <div className={styles.kpiTrend}>Plan de Calibración 2026</div>
         </div>
 
-        <div className={`${styles.kpiCard} ${vencidas === 0 ? styles.success : styles.danger}`}>
+        {/* KPI 2 */}
+        <div className={`${styles.kpiCard} ${styles.bentoKpi} ${vencidas === 0 ? styles.success : styles.danger}`}>
           <div className={styles.kpiHeader}>
             <span>Válvulas Vencidas</span>
             <Calendar size={16} />
@@ -221,7 +224,8 @@ export default function DashboardPage() {
           <div className={styles.kpiTrend}>Equipos fuera de norma</div>
         </div>
 
-        <div className={styles.kpiCard}>
+        {/* KPI 3 */}
+        <div className={`${styles.kpiCard} ${styles.bentoKpi}`}>
           <div className={styles.kpiHeader}>
             <span>MTBF Promedio</span>
             <Clock size={16} />
@@ -230,7 +234,8 @@ export default function DashboardPage() {
           <div className={styles.kpiTrend}>Tiempo medio entre fallas</div>
         </div>
 
-        <div className={styles.kpiCard}>
+        {/* KPI 4 */}
+        <div className={`${styles.kpiCard} ${styles.bentoKpi}`}>
           <div className={styles.kpiHeader}>
             <span>Costo Mantenimiento</span>
             <CircleDollarSign size={16} />
@@ -238,34 +243,32 @@ export default function DashboardPage() {
           <div className={styles.kpiValue}>${(costoTotal / 1000).toFixed(1)}k</div>
           <div className={styles.kpiTrend}>Acumulado anual USD</div>
         </div>
-      </div>
 
-      <main className={styles.grid}>
         {/* Gráfica de Tendencia */}
-        <div className={`${styles.chartCard} glass`}>
+        <div className={`${styles.chartCard} ${styles.bentoChartLarge} glass`}>
           <h3>Tendencia de Mantenimiento e Inspección</h3>
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
               <AreaChart data={interventionsData}>
                 <defs>
                   <linearGradient id="colorPruebas" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#ff5a3c" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#ff5a3c" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="name" />
                 <YAxis />
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                 <Tooltip />
-                <Area type="monotone" dataKey="pruebas" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorPruebas)" />
-                <Area type="monotone" dataKey="reparaciones" stroke="#f59e0b" fill="#fef3c7" />
+                <Area type="monotone" dataKey="pruebas" stroke="#ff5a3c" fillOpacity={1} fill="url(#colorPruebas)" />
+                <Area type="monotone" dataKey="reparaciones" stroke="#6366f1" fill="#eef2ff" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Distribución por Estado */}
-        <div className={`${styles.chartCard} glass`}>
+        <div className={`${styles.chartCard} ${styles.bentoChartSmall} glass`}>
           <h3>Distribución de Activos por Estado</h3>
           <div style={{ width: '100%', height: 300 }}>
             <ResponsiveContainer>
@@ -289,7 +292,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Matriz de Riesgo Dinámica */}
-        <div className={`${styles.matrixCard} glass`}>
+        <div className={`${styles.matrixCard} ${styles.bentoMatrix} glass`}>
           <div className={styles.matrixHeader}>
             <h3>Matriz de Integridad (POF vs COF)</h3>
             <span>Riesgo Acumulado</span>
@@ -298,7 +301,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Listado de Fallas Recurrentes o Próximas */}
-        <div className={`${styles.activeTableCard} glass`}>
+        <div className={`${styles.activeTableCard} ${styles.bentoTable} glass`}>
           <h3>Alertas y Vencimientos</h3>
           <table className={styles.table}>
             <thead>
@@ -325,7 +328,7 @@ export default function DashboardPage() {
             </tbody>
           </table>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

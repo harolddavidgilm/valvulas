@@ -86,8 +86,8 @@
 }
 
 .inputWrapper:focus-within {
-  border-color: #1e293b;
-  box-shadow: 0 0 0 4px rgba(30, 41, 59, 0.05);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(255, 90, 60, 0.1);
 }
 
 .inputWrapper svg {
@@ -135,7 +135,7 @@
 }
 
 .submitBtn {
-  background: #1e293b;
+  background: var(--accent);
   color: white;
   padding: 1rem;
   border-radius: 14px;
@@ -148,9 +148,9 @@
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: #0f172a;
+  background: var(--accent-dark);
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 10px 15px -3px rgba(255, 90, 60, 0.3);
 }
 
 .submitBtn:disabled {

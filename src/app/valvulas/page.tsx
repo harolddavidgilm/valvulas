@@ -146,7 +146,7 @@ export default function ValvulasPage() {
           <h2>Gestión de Activos (Válvulas PSV/PRV)</h2>
           <p>Inventario centralizado y trazabilidad técnica</p>
           {empresa && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '0.4rem', padding: '4px 10px', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--accent-purple)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '0.4rem', padding: '4px 10px', background: 'var(--accent-light)', border: '1px solid rgba(255, 90, 60, 0.2)', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--accent)', fontWeight: '600' }}>
               <Building2 size={13} /> {empresa.nombre}
             </div>
           )}
@@ -219,7 +219,7 @@ export default function ValvulasPage() {
               {paginatedData.map((v) => (
                 <tr key={v.id}>
                   <td className={styles.tag}>
-                    <Link href={`/valvulas/${v.id}`} style={{ color: 'var(--accent-purple)', fontWeight: '700', textDecoration: 'none' }}>
+                    <Link href={`/valvulas/${v.id}`} style={{ color: 'var(--accent)', fontWeight: '700', textDecoration: 'none' }}>
                       {v.tag}
                     </Link>
                   </td>

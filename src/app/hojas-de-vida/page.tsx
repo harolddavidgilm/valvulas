@@ -126,7 +126,7 @@ export default function HojasDeVidaPage() {
           <h2>Hojas de Vida y Trazabilidad (Activos)</h2>
           <p>Seleccione una válvula para ver su historial, pruebas y configuración.</p>
           {empresa && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '0.4rem', padding: '4px 10px', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--accent-purple)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '0.4rem', padding: '4px 10px', background: 'var(--accent-light)', border: '1px solid rgba(255, 90, 60, 0.2)', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--accent)', fontWeight: '600' }}>
               <Building2 size={13} /> {empresa.nombre}
             </div>
           )}
@@ -189,7 +189,7 @@ export default function HojasDeVidaPage() {
               {paginatedData.map((v) => (
                 <tr key={v.id}>
                   <td className={styles.tag}>
-                    <Link href={`/valvulas/${v.id}`} style={{ color: 'var(--accent-purple)', textDecoration: 'none', fontWeight: '700' }}>
+                    <Link href={`/valvulas/${v.id}`} style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: '700' }}>
                       {v.tag}
                     </Link>
                   </td>

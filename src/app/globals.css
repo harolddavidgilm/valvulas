@@ -1,24 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --app-bg: #c9ccd0; /* Outer background color matching image */
-  --sidebar-bg: #5c6874; /* Sidebar dark slate blue/grey */
-  --main-bg: #f7f9fa; /* The light clean background inside the app layout */
+  --app-bg: #eaeef2; /* Outer background color matching image */
+  --sidebar-bg: #ffffff; /* Sidebar clean white as per modern light dashboard */
+  --main-bg: #f2f4f7; /* The light clean background inside the app layout */
   
-  --foreground: #1c2331; /* Dark text for clean reading */
-  --text-muted: #8493a5; /* Light grey text */
+  --foreground: #1e293b; /* Premium slate dark text */
+  --text-muted: #64748b; /* Soft slate grey text */
   
-  /* Accent colors from the image (Mint green and Indigo) */
-  --accent: #87bfa0;
-  --accent-dark: #74a78a;
-  --accent-purple: #4e4bb2;
+  /* Accent colors from the image (Coral and elegant derivatives) */
+  --accent: #ff5a3c;
+  --accent-dark: #e0462c;
+  --accent-light: #ffece8;
+  --accent-purple: #6366f1; /* Indigos and purples */
   
-  --danger: #ef4444;
+  --danger: #ff5a3c; /* Let's align danger with the vivid coral/orange-red */
   --warning: #f59e0b;
   --success: #10b981;
   
   --card-bg: #ffffff;
-  --border: #e8ecf1;
+  --border: #e2e8f0;
   
   --font-industrial: 'Outfit', system-ui, -apple-system, sans-serif;
 }
@@ -92,9 +93,14 @@ h1, h2, h3 {
 .glass {
   background: var(--card-bg) !important;
   backdrop-filter: none !important;
-  border: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.03) !important;
   border-radius: 24px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 2px 5px rgba(0,0,0,0.02) !important;
+  box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.02), 0 4px 12px -2px rgba(0, 0, 0, 0.01) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.03), 0 10px 10px -5px rgba(0, 0, 0, 0.01) !important;
 }
 
 /* Buttons */
@@ -121,7 +127,7 @@ h1, h2, h3 {
 .btn-primary:hover {
   background: var(--accent-dark);
   transform: translateY(-1px);
-  box-shadow: 0 6px 15px rgba(135, 191, 160, 0.4);
+  box-shadow: 0 6px 15px rgba(255, 90, 60, 0.3);
   color: white;
   text-decoration: none;
 }
