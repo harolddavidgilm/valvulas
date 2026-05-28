@@ -1,6 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // Disable StrictMode to prevent Supabase gotrue-js lock contention in dev
+  // (React StrictMode double-mounts cause "lock not released within 500ms" errors)
+  reactStrictMode: false,
   // Suppress invalid source map warnings from third-party libraries
   productionBrowserSourceMaps: false,
   webpack: (config, { dev }) => {

@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { 
   ShieldAlert, Calendar, LayoutDashboard, TrendingDown, Clock, 
-  CircleDollarSign, AlertTriangle, CheckCircle2, Factory, Filter, Loader2, Building2
+  CircleDollarSign, AlertTriangle, CheckCircle2, Factory, Filter, Loader2, Building2, Tags
 } from 'lucide-react';
 import styles from './page.module.css';
 import RiskMatrix from '@/components/RiskMatrix/RiskMatrix';
@@ -17,6 +17,19 @@ import RiskMatrix from '@/components/RiskMatrix/RiskMatrix';
 interface Empresa {
   id: string;
   nombre: string;
+}
+
+interface Clasificacion {
+  id: string;
+  nombre: string;
+  color: string;
+}
+
+interface UnidadSistema {
+  id: string;
+  nombre: string;
+  tag: string | null;
+  empresa_id: string | null;
 }
 
 export default function DashboardPage() {
@@ -32,6 +45,12 @@ export default function DashboardPage() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [filterEmpresa, setFilterEmpresa] = useState('Todas');
 
+  // Filtros de Clasificación y Unidad/Sistema
+  const [clasificaciones, setClasificaciones] = useState<Clasificacion[]>([]);
+  const [unidades, setUnidades] = useState<UnidadSistema[]>([]);
+  const [filterClasificacion, setFilterClasificacion] = useState('Todas');
+  const [filterUnidad, setFilterUnidad] = useState('Todas');
+
   const lastFetchRef = useRef(0);
 
   // Cargar lista de empresas solo para admin
@@ -41,6 +60,29 @@ export default function DashboardPage() {
         .then(({ data }) => { if (data) setEmpresas(data); });
     }
   }, [role]);
+
+  // Cargar clasificaciones (globales)
+  useEffect(() => {
+    supabase.from('clasificaciones').select('id, nombre, color').order('nombre')
+      .then(({ data }) => { if (data) setClasificaciones(data); });
+  }, []);
+
+  // Cargar unidades filtradas por empresa seleccionada
+  useEffect(() => {
+    // Determinar empresa a filtrar
+    const empId = role === 'admin'
+      ? (filterEmpresa !== 'Todas' ? filterEmpresa : null)
+      : empresaId;
+
+    let q = supabase.from('unidades_sistema').select('id, nombre, tag, empresa_id').order('nombre');
+    if (empId) q = q.eq('empresa_id', empId);
+
+    q.then(({ data }) => {
+      setUnidades(data || []);
+      // Si la unidad seleccionada ya no está disponible, resetear
+      setFilterUnidad('Todas');
+    });
+  }, [filterEmpresa, empresaId, role]);
 
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
@@ -106,7 +148,16 @@ export default function DashboardPage() {
     costoTotal, mtbf, estadoData, interventionsData 
   } = useMemo(() => {
     const p = Array.from(new Set(valvulas.map(v => v.ubicacion).filter(Boolean).sort()));
-    const fV = filterPlanta === 'Todas' ? valvulas : valvulas.filter(v => v.ubicacion === filterPlanta);
+
+    // Aplicar filtros encadenados
+    let fV = filterPlanta === 'Todas' ? valvulas : valvulas.filter(v => v.ubicacion === filterPlanta);
+    if (filterClasificacion !== 'Todas') {
+      fV = fV.filter(v => v.clasificacion_id === filterClasificacion);
+    }
+    if (filterUnidad !== 'Todas') {
+      fV = fV.filter(v => v.unidad_sistema_id === filterUnidad);
+    }
+
     const fIds = new Set(fV.map(v => v.id));
     const fP = pruebas.filter(p => fIds.has(p.valvula_id));
     const fR = reparaciones.filter(r => fIds.has(r.valvula_id));
@@ -141,7 +192,7 @@ export default function DashboardPage() {
       estadoData: eD,
       interventionsData: iD
     };
-  }, [valvulas, pruebas, reparaciones, filterPlanta]);
+  }, [valvulas, pruebas, reparaciones, filterPlanta, filterClasificacion, filterUnidad]);
 
   if (loading) return (
     <div className={styles.loading}>
@@ -164,10 +215,39 @@ export default function DashboardPage() {
           {role === 'admin' && (
             <div className={styles.filters} style={{ borderRight: '1px solid var(--glass-border)', paddingRight: '0.75rem' }}>
               <Building2 size={16} style={{ opacity: 0.6 }} />
-              <select value={filterEmpresa} onChange={e => setFilterEmpresa(e.target.value)}>
+              <select value={filterEmpresa} onChange={e => {
+                setFilterEmpresa(e.target.value);
+                setFilterUnidad('Todas'); // resetear unidad al cambiar empresa
+              }}>
                 <option value="Todas">Todas las Empresas</option>
                 {empresas.map(emp => (
                   <option key={emp.id} value={emp.id}>{emp.nombre}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          {/* Filtro por Clasificación */}
+          {clasificaciones.length > 0 && (
+            <div className={styles.filters} style={{ borderRight: '1px solid var(--glass-border)', paddingRight: '0.75rem' }}>
+              <Tags size={16} style={{ opacity: 0.6 }} />
+              <select value={filterClasificacion} onChange={e => setFilterClasificacion(e.target.value)}>
+                <option value="Todas">Todas las Clasificaciones</option>
+                {clasificaciones.map(c => (
+                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          {/* Filtro por Unidad/Sistema — depende de empresa seleccionada */}
+          {unidades.length > 0 && (
+            <div className={styles.filters} style={{ borderRight: '1px solid var(--glass-border)', paddingRight: '0.75rem' }}>
+              <Factory size={16} style={{ opacity: 0.6 }} />
+              <select value={filterUnidad} onChange={e => setFilterUnidad(e.target.value)}>
+                <option value="Todas">Todas las Unidades</option>
+                {unidades.map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.tag ? `${u.tag} — ` : ''}{u.nombre}
+                  </option>
                 ))}
               </select>
             </div>

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { Home, ClipboardList, ShieldAlert, Settings, Wrench, FileText, Calendar, LogOut, User as UserIcon, ChevronUp, ChevronDown, Menu, X, Building2 } from 'lucide-react';
+import { Home, ClipboardList, ShieldAlert, Settings2, Wrench, FileText, Calendar, LogOut, User as UserIcon, ChevronUp, ChevronDown, ChevronRight, Menu, X, Building2, Tags, Factory } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import HasPermission from '@/components/Auth/HasPermission';
 import styles from './styles.module.css';
@@ -13,6 +13,7 @@ export default function Sidebar() {
   const [showTopArrow, setShowTopArrow] = useState(false);
   const [showBottomArrow, setShowBottomArrow] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [configOpen, setConfigOpen] = useState(false);
 
   const checkScroll = () => {
     if (navRef.current) {
@@ -83,7 +84,7 @@ export default function Sidebar() {
               <span>Análisis RBI</span>
             </Link>
             <Link href="/inventario" className={styles.navLink} onClick={() => setIsOpen(false)}>
-              <Settings size={20} />
+              <Settings2 size={20} />
               <span>Inventario Repuestos</span>
             </Link>
             <Link href="/reportes" className={styles.navLink} onClick={() => setIsOpen(false)}>
@@ -96,18 +97,42 @@ export default function Sidebar() {
                 <span>Técnicos (Personal)</span>
               </Link>
             </HasPermission>
-            <HasPermission roles={['admin']}>
-              <Link href="/empresas" className={styles.navLink} onClick={() => setIsOpen(false)}>
-                <Building2 size={20} />
-                <span>Empresas</span>
-              </Link>
-            </HasPermission>
-            <HasPermission roles={['admin']}>
-              <Link href="/usuarios" className={styles.navLink} onClick={() => setIsOpen(false)}>
-                <UserIcon size={20} />
-                <span>Usuarios y Roles</span>
-              </Link>
-            </HasPermission>
+
+            {/* ── Menú Configuración ── */}
+            <div className={styles.configGroup}>
+              <button
+                className={`${styles.navLink} ${styles.configToggle} ${configOpen ? styles.configToggleOpen : ''}`}
+                onClick={() => setConfigOpen(!configOpen)}
+                aria-expanded={configOpen}
+              >
+                <Settings2 size={20} />
+                <span>Configuración</span>
+                <ChevronRight size={14} className={styles.configChevron} />
+              </button>
+
+              <div className={`${styles.configSubmenu} ${configOpen ? styles.configSubmenuOpen : ''}`}>
+                <HasPermission roles={['admin']}>
+                  <Link href="/empresas" className={styles.subNavLink} onClick={() => setIsOpen(false)}>
+                    <Building2 size={16} />
+                    <span>Empresas</span>
+                  </Link>
+                </HasPermission>
+                <HasPermission roles={['admin']}>
+                  <Link href="/usuarios" className={styles.subNavLink} onClick={() => setIsOpen(false)}>
+                    <UserIcon size={16} />
+                    <span>Usuarios y Roles</span>
+                  </Link>
+                </HasPermission>
+                <Link href="/configuracion/clasificaciones" className={styles.subNavLink} onClick={() => setIsOpen(false)}>
+                  <Tags size={16} />
+                  <span>Clasificaciones</span>
+                </Link>
+                <Link href="/configuracion/unidades" className={styles.subNavLink} onClick={() => setIsOpen(false)}>
+                  <Factory size={16} />
+                  <span>Unidad / Sistema</span>
+                </Link>
+              </div>
+            </div>
           </div>
           {showBottomArrow && (
             <div className={`${styles.scrollIndicator} ${styles.bottomIndicator}`}>
